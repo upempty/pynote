@@ -1,11 +1,9 @@
 '''
-# installation timeout issue resolution. To use native country mirroring to speed up the installation.
+installation timeout issue resolution. To use native country mirroring to speed up the installation.
 
 pip3 install --upgrade pip -i https://pypi.doubanio.com/simple/
 
-
-
-# or --default-timeout=100
+or --default-timeout=100
 pip3 install virtualenv --index https://pypi.mirrors.ustc.edu.cn/simple/
 virtualenv -p python3 venv3
 source bin/activate
@@ -22,9 +20,39 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> import django
 >>>
 
-# VS code
-# control + - ; go back
+VS code
+control + - ; go back
   cmd + click ; go definition
   
+debug->add config
+lauch.json
+port 9000
+path
+fn+f5 for execute
 
+/Users/feicheng/dev/py/django3/django3-course/.vscode
+(venv3) ➜  .vscode git:(master) ✗ cat launch.json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+
+        {
+            "name": "Python: Django",
+            "type": "python",
+            "request": "launch",
+            "pythonPath": "/Users/feicheng/dev/py/venv3/bin/python",
+            "program": "/Users/feicheng/dev/py/django3/django3-course/02.Django是如何工作的/manage.py",
+            "args": [
+                "runserver",
+                "9000",
+                "--noreload"
+            ],
+            "django": true
+        }
+    ]
+}%
 '''
