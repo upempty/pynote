@@ -55,4 +55,17 @@ fn+f5 for execute
         }
     ]
 }%
+
+
+(venv3) ➜  django3-blog git:(master) python manage.py createsuperuser
+Username (leave blank to use 'feicheng'): test
+Email address: 184918308@qq.com
+Password:
+Password (again):
+The password is too similar to the username.
+This password is too short. It must contain at least 8 characters.
+This password is too common.
+Bypass password validation and create user anyway? [y/N]: y
+Superuser created successfully.
+(venv3) ➜  django3-blog git:(master)
 ```
