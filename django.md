@@ -68,4 +68,6 @@ This password is too common.
 Bypass password validation and create user anyway? [y/N]: y
 Superuser created successfully.
 (venv3) ➜  django3-blog git:(master)
+
+To use "run without debug" in "Debug" Menu if object_list is not variable issue
 ```
