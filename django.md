@@ -1,4 +1,4 @@
-'''
+```
 installation timeout issue resolution. To use native country mirroring to speed up the installation.
 
 pip3 install --upgrade pip -i https://pypi.doubanio.com/simple/
@@ -55,4 +55,4 @@ fn+f5 for execute
         }
     ]
 }%
-'''
+```
