@@ -1,4 +1,6 @@
 ```
+pip install requests==2.23.0 -i https://pypi.doubanio.com/simple/
+
 installation timeout issue resolution. To use native country mirroring to speed up the installation.
 
 pip3 install --upgrade pip -i https://pypi.doubanio.com/simple/
