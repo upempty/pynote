@@ -1,7 +1,7 @@
 ## deep
 ### yield
 ```
-YIELD_VALUE return and suspends (state) for the coroute.
+YIELD_VALUE return and suspends (state) for the coroutine.
 ```
 ### robo control
 ```
