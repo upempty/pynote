@@ -1,4 +1,4 @@
-## deep
+## deep into sourcecode
 ### yield
 ```
 YIELD_VALUE return and suspends (state) for the coroutine.
