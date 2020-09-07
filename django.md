@@ -73,3 +73,37 @@ Superuser created successfully.
 
 To use "run without debug" in "Debug" Menu if object_list is not variable issue.
 ```
+
+## start_response usage, seems it is not important?
+```
+cpython/Lib/wsgiref/handlers.py
+
+ def start_response(self, status, headers,exc_info=None):
+        """'start_response()' callable as specified by PEP 3333"""
+
+        if exc_info:
+            try:
+                if self.headers_sent:
+                    # Re-raise original exception if headers sent
+                    raise exc_info[0](exc_info[1]).with_traceback(exc_info[2])
+            finally:
+                exc_info = None        # avoid dangling circular ref
+        elif self.headers is not None:
+            raise AssertionError("Headers already set!")
+
+        self.status = status
+        self.headers = self.headers_class(headers)
+        status = self._convert_string_type(status, "Status")
+        assert len(status)>=4,"Status must be at least 4 characters"
+        assert status[:3].isdigit(), "Status message must begin w/3-digit code"
+        assert status[3]==" ", "Status message must have a space after code"
+
+        if __debug__:
+            for name, val in headers:
+                name = self._convert_string_type(name, "Header name")
+                val = self._convert_string_type(val, "Header value")
+                assert not is_hop_by_hop(name),\
+                       f"Hop-by-hop header, '{name}: {val}', not allowed"
+
+        return self.write
+```
