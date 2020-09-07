@@ -76,7 +76,77 @@ To use "run without debug" in "Debug" Menu if object_list is not variable issue.
 
 ## start_response usage, seems it is not important?
 ```
-cpython/Lib/wsgiref/handlers.py
+--cpython/Lib/wsgiref/handlers.py:
+class BaseHandler:
+    """Manage the invocation of a WSGI application"""
+
+    # Configuration parameters; can override per-subclass or per-instance
+    wsgi_version = (1,0)
+    wsgi_multithread = True
+    wsgi_multiprocess = True
+    wsgi_run_once = False
+
+    origin_server = True    # We are transmitting direct to client
+    http_version  = "1.0"   # Version that should be used for response
+    server_software = None  # String name of server software, if any
+
+    # os_environ is used to supply configuration from the OS environment:
+    # by default it's a copy of 'os.environ' as of import time, but you can
+    # override this in e.g. your __init__ method.
+    os_environ= read_environ()
+
+    # Collaborator classes
+    wsgi_file_wrapper = FileWrapper     # set to None to disable
+    headers_class = Headers             # must be a Headers-like class
+
+    # Error handling (also per-subclass or per-instance)
+    traceback_limit = None  # Print entire traceback to self.get_stderr()
+    error_status = "500 Internal Server Error"
+    error_headers = [('Content-Type','text/plain')]
+    error_body = b"A server error occurred.  Please contact the administrator."
+
+    # State variables (don't mess with these)
+    status = result = None
+    headers_sent = False
+    headers = None
+    bytes_sent = 0
+
+    def run(self, application):
+        """Invoke the application"""
+        # Note to self: don't move the close()!  Asynchronous servers shouldn't
+        # call close() from finish_response(), so if you close() anywhere but
+        # the double-error branch here, you'll break asynchronous servers by
+        # prematurely closing.  Async servers must return from 'run()' without
+        # closing if there might still be output to iterate over.
+        try:
+            self.setup_environ()
+            self.result = application(self.environ, self.start_response)
+            
+--django/django/core/handlers/wsgi.py:           
+class WSGIHandler(base.BaseHandler):
+    request_class = WSGIRequest
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.load_middleware()
+
+    def __call__(self, environ, start_response):
+        set_script_prefix(get_script_name(environ))
+        signals.request_started.send(sender=self.__class__, environ=environ)
+        request = self.request_class(environ)
+        response = self.get_response(request)
+
+        response._handler_class = self.__class__
+
+        status = '%d %s' % (response.status_code, response.reason_phrase)
+        response_headers = [
+            *response.items(),
+            *(('Set-Cookie', c.output(header='')) for c in response.cookies.values()),
+        ]
+        start_response(status, response_headers)
+        
+        
+--cpython/Lib/wsgiref/handlers.py:
 
  def start_response(self, status, headers,exc_info=None):
         """'start_response()' callable as specified by PEP 3333"""
