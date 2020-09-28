@@ -1,5 +1,5 @@
 ## ceate django project/app
-
+```
 pip install djangorestframework -i https://pypi.doubanio.com/simple/
 
 (venv3) ➜  plan1 django-admin.py startproject blog
@@ -42,4 +42,4 @@ Debug->Add Configuration
 }
 // /Users/feicheng/dev/upempty/plan1/.vscode/launch.json
 
-
+```
