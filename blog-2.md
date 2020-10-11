@@ -1,3 +1,8 @@
+## env for python path for search source code usage
+```
+VSCODE-Code->Preferences->Settings search: Python Path
+/Users/feicheng/dev/py/venv3/bin/python
+```
 
 ## verify
 http://127.0.0.1:8000/firstV/
