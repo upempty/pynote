@@ -19,7 +19,7 @@ main()
                                                            ->httpd.set_app(handler.....also application)
                                                            ->httpd.serve_forever---insocketserver.py there, there are self._handle_request_noblock()
 ```
-## django handle request 
+## django handle request at running time
 ```
 reference: https://blog.csdn.net/bingjia103126/article/details/105466669/
 
