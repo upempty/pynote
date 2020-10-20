@@ -24,4 +24,15 @@ drwxr-xr-x  853 feicheng  staff   27296 10 20 23:40 node_modules
 
 http://localhost:8081/#/
 
+install element-ui
+```
+frontend>> npm i element-ui -S
++ element-ui@2.13.2
+added 6 packages from 6 contributors in 6.47s
+
+34 packages are looking for funding
+  run `npm fund` for details
+
+```
+
 
