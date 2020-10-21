@@ -18,7 +18,31 @@ main()
                                                            ->httpd=httpd_cls(addr, WSGIRequestHandler,,,)
                                                            ->httpd.set_app(handler.....also application)
                                                            ->httpd.serve_forever---in socketserver.py there, there are self._handle_request_noblock()
+---------
+    BaseServer._handle_request_noblock()
 
+        BaseServer.get_request() -> request, client_addres
+
+        BaseServer.verify_request()
+
+            BaseServer.process_request()
+
+                BaseServer.process_request()
+
+                    BaseServer.finish_request()
+
+                        BaseServer.RequestHandlerClass()
+
+                            BaseRequestHandler.__init__(request)
+            
+                                BaseRequestHandler.request
+                                BaseRequestHandler.client_address = client_address
+
+                                BaseRequestHandler.setup()
+
+                                BaseRequestHandler.handle()------>class WSGIRequestHandler(simple_server.WSGIRequestHandler).handle()->.handle_one_request->
+				   ->handler = ServerHandler(...)--->handler.run(self.server.get_app())
+---------
 
 BaseHandler:
     def run(self, application):
