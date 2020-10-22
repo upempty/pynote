@@ -176,7 +176,8 @@ class FirstView(View):
     def get(self, request, *args, **kwargs):
         result = {'status': True, 'data': 'first response'}
         print('test=', result)
-        return JsonResponse(result, status = 200)----------------------------------------------xxx!
+        return JsonResponse(result, status = 200)----------------------------------------------xxx! JsonResponse() object's items is values or content, 
+	---------------------------------------------------------------------------------------so to iteral to list, for x in result.
 	
 	
 	
