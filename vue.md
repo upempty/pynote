@@ -33,6 +33,16 @@ added 6 packages from 6 contributors in 6.47s
 34 packages are looking for funding
   run `npm fund` for details
 
+
+
+➜  rest cnpm i axios -D
+✔ Installed 1 packages
+✔ Linked 1 latest versions
+✔ Run 0 scripts
+✔ All packages installed (2 packages installed from npm registry, used 856ms(network 853ms), speed 129.16kB/s, json 2(9.48kB), tarball 100.69kB)
+➜  rest 
+
+
 ```
 ref:https://www.jianshu.com/p/094eccb84267
 https://www.cnblogs.com/wyongz/p/11192957.html
