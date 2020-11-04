@@ -34,13 +34,24 @@ added 6 packages from 6 contributors in 6.47s
   run `npm fund` for details
 
 
-
+==installed in frontend folder
 ➜  rest cnpm i axios -D
 ✔ Installed 1 packages
 ✔ Linked 1 latest versions
 ✔ Run 0 scripts
 ✔ All packages installed (2 packages installed from npm registry, used 856ms(network 853ms), speed 129.16kB/s, json 2(9.48kB), tarball 100.69kB)
 ➜  rest 
+
+====run frontend and backend:
+1. npm run dev ---in /Users/feicheng/dev/upempty/plan1/fe/frontend
+I  Your application is running here: http://localhost:8091
+^Z
+[11]  + 15350 suspended  npm run dev
+(venv3) ➜  frontend
+
+2. python manage.py runserver 9000 --in /Users/feicheng/dev/upempty/plan1/blog
+(venv3) ➜  blog >>python manage.py runserver 9000        
+
 
 
 ```
