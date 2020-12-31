@@ -7,7 +7,7 @@ while(1):
     execute the instruction;
      if jmp instruction:
          write the jump's address to PC;
-     elif: call instruction:
+     elif: call instruction: possible nest call fun
          get_pc;
          --push next PC
          get_pc:xxxxx
