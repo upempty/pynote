@@ -1,7 +1,7 @@
 ## how CPU works
 ```
 while(1):
-    fetch instruction from mem pointed by PC;
+    fetch instruction from memory pointed by PC;
     increament of PC;
     execute the instruction;
      if jmp instruction:
