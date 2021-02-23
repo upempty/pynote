@@ -1,9 +1,9 @@
 # How html javascript excuting
 ## Downloading html and script for executing locally in chrome v8 engine.
+--Let’s see what happens when we open this HTML file in the browser:--
+
 ```
 Ref: https://www.telerik.com/blogs/journey-of-javascript-downloading-scripts-to-execution-part-i
-
---Let’s see what happens when we open this HTML file in the browser:--
 
 The browser starts parsing the HTML code. When it comes across a script tag in the head section, 
 the HTML parsing is paused. An HTTP request is sent to the server to fetch the script. 
