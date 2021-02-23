@@ -1,6 +1,6 @@
 # How html javascript excuting
 ## Downloading html and script for executing locally in chrome v8 engine.
---Let’s see what happens when we open this HTML file in the browser:--
+** Let’s see what happens when we open this HTML file in the browser: **
 
 ```
 Ref: https://www.telerik.com/blogs/journey-of-javascript-downloading-scripts-to-execution-part-i
