@@ -1,5 +1,5 @@
 
-To determine the seg start addr: [linker](https://github.com/aosp-mirror/platform_bionic/blob/master/linker/linker_phdr.cpp)
+To determine the segment start addr: [linker](https://github.com/aosp-mirror/platform_bionic/blob/master/linker/linker_phdr.cpp)
 ```
 
 Ref: https://github.com/aosp-mirror/platform_bionic/blob/master/linker/linker_phdr.cpp
