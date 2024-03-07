@@ -22,8 +22,9 @@ lmygod = ctypes.CDLL("//home/f1cheng/lastcode/libmygod.so")
 
 print('begin')
 ret = lmygod.layer_comm_add()
-print(f'end with ret={ret}')
 print('end with ret={}'.format(ret))
+#recommend for above version python3.5 
+print(f'end with ret={ret}')
 
 ==printout of python3 pmygod.py
 begin
