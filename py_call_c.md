@@ -1,4 +1,4 @@
-
+```
 ==mygod.c
 
 #include <stdio.h>
@@ -30,4 +30,4 @@ begin
 Now be communicated
 end with ret=0
 end with ret=0
-
+```
