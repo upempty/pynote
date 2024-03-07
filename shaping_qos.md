@@ -44,8 +44,6 @@ if __name__ == '__main__':
             print(f'not enough to consume')
 ```
 ```
-
-not enough to consume
 PS C:\Users\fei\homespace>  c:; cd 'c:\Users\fei\homespace'; & 'c:\Users\fei\AppData\Local\Programs\Python\Python311\python.exe' 'c:\Users\fei\.vscode\extensions\ms-python.debugpy-2024.2.0-win32-x64\bundled\l
 ibs\debugpy\adapter/../..\debugpy\launcher' '50544' '--' 'c:\Users\fei\homespace\shaping_qos.py'
 prepared:
