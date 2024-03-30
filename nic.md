@@ -8,3 +8,8 @@
 
 
 ```
+
+```
+why to add frame header(56bits) and starting frame(8bits) before dest addr+src addr....
+101010......1011: last two bits is 11, NIC indentifies this as frame starting point.
+```
