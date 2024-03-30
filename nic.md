@@ -1,0 +1,2 @@
+- Rx Engine->Rx FIFO->Rules Checkers->Frame Buffers---------Nic Rx Producer Ring------DMA----Host Rx Producer Ring
+- Rx Engine->Rx FIFO->Rules Checkers->Frame Buffers---------Full BD---List Initiator---DMA---Host Rx Return Ring
