@@ -1,7 +1,9 @@
 
 ```
-PHY: digital signal <->analog signal; Signal Tx/Rx.
----MAC-PHY-Fiber Tranceiver or Magnetics-RJ45 Ethernet Cable
+PHY
+purpose: digital signal <->analog signal; Signal Tx/Rx.
+---MAC-PHY-Fiber Tranceiver or Magnetics-RJ45 Ethernet Cable.
+---PHY may support auto detect connected medium copper or fiber supported.
 ```
 ```
 Rx0/Rx0---100BASE-T Tranceiver--Port0's MAC on Switch
