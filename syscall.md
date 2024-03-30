@@ -22,5 +22,6 @@ syscall_fn = syscall_table[array_index_nospec(scno, sc_nr)];
 sys_recv = SYSCALL_DEFINE4(recv,..)
 __sys_recv---
 
+-iret
 .................
 ```
