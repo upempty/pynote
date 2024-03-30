@@ -6,6 +6,5 @@
 - Host Tx Producer Rings->NIC send Ring Ring(Tx data -> buffer0/1...)->Tx FIFO-> Tx MAC
   -- NIC inernal memory -> Tx FIFO -> PHY
 
-  Note: FIFO is probably arrarys pointing to memory buffer.
 
 ```
