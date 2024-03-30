@@ -4,7 +4,7 @@
 send()->glibc(send)-> SEND_NR, int 0x80(system call)/swi/swc 0 intrrupt.
 =hardware
 CPU response: save pc, registers, find 0x80 IDT entry:get previlleage ,
-has authorize to trigger this interrupt, switch to kernel mode,
+has authorize to trigger this interrupt, switch to kernel mode, provide kernel stack via TSS.
 ISR address assign to PC of CPU.
 --> IDT descriptor entry(0x80th) on LIDT
 --> selector(GDT/LDT's x-th entry->GDT==kernel code base address, and limit.
