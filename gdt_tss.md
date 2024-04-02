@@ -332,6 +332,7 @@ static inline void __set_tss_desc(unsigned cpu, unsigned int entry, struct x86_h
 
 ```
 - Nowadays use TLS descriptors in GDT instead of TSS? not sure it's the same purpose.
+  But it indeed uses FS and GS segmentation registers(fs:offset or gs:offset) to access TLS(thread local storage) info, and reload/restore when task/thread switching.
 ```
 #define GDT_SIZE			(GDT_ENTRIES*8)
 #define GDT_ENTRY_TLS_ENTRIES		3
