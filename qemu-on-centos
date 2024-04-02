@@ -1,0 +1,44 @@
+
+```
+ yum install binutils
+ yum install qemu-kvm -- installed but not used.
+
+cd /usr/src && wget http://download.qemu.org/qemu-2.8.0.tar.xz
+tar xvJf qemu-2.8.0.tar.xz 
+cd qemu-2.8.0
+./configure  ---require 2-3 version, not support python3 higher version.
+
+cd /usr/src && wget http://download.qemu.org/qemu-8.0.0.tar.xz
+
+tar xvJf qemu-8.0.0.tar.xz && cd qemu-8.0.0
+./configure  
+make && make install
+
+--configure failed, then continue
+
+
+yum install gcc-c++
+git clone https://github.com/ninja-build/ninja.git
+cd ninja
+git checkout release
+./configure.py --bootstrap
+./ninja --version
+1.11.1
+
+cd qemu-8.0.0
+./configure  
+ERROR: glib-2.56 gthread-2.0 is required to compile QEMU in centos
+
+--issue
+yum install glib2 glib2-devel
+
+ERROR: Dependency "pixman-1" not found, tried pkgconfig
+
+yum install pixman-devel
+
+
+make && make install
+
+then to check qemu- prompt, whether includes qemu-system-i386
+
+```
