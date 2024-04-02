@@ -20,6 +20,7 @@ how TSS be located by process. thread_struct/task_struct includes it.
 
 During task switching, the processor first stores the context of current task in the current TSS, then loads the task register of the new task,
 then loads the context of the new task from the new TSS with the new task's descriptor in GDT, finally executes the new task.
+The TSS description will be swapped during task switching on the same entry postion of GDT.
 
 ```
 
@@ -235,7 +236,7 @@ get_tss(void) {
 
 ```
 -- and TR task register includes the TSS description info, but also selector included which is entry location index in GDT.
-Which is fixed 8 or 16 index in GDT as below.
+Which is fixed 8th or 16th position in GDT as below. 
 
 #if defined(CONFIG_X86_32) && !defined(BUILD_VDSO32_64)
 #define GDT_ENTRY_TSS			16-------------------
