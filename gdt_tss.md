@@ -16,7 +16,7 @@ In the case of the Pentium architecture, the size of the middle directory portio
 ```
 - TSS
 ```
-how TSS be located by process.
+how TSS be located by process. thread_struct/task_struct includes it.
 
 During task switching, the processor first stores the context of current task in the current TSS, then loads the task register of the new task,
 then loads the context of the new task from the new TSS with the new task's descriptor in GDT, finally executes the new task.
