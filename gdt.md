@@ -228,8 +228,14 @@ get_tss(void) {
 
 }
 ```
+
 - Nowadays use TLS descriptors in GDT instead of TSS. 
 ```
+#define GDT_SIZE			(GDT_ENTRIES*8)
+#define GDT_ENTRY_TLS_ENTRIES		3
+#define TLS_SIZE			(GDT_ENTRY_TLS_ENTRIES* 8)
+...
+
 struct thread_struct {
 	/* Cached TLS descriptors: */
 	struct desc_struct	tls_array[GDT_ENTRY_TLS_ENTRIES];
@@ -249,4 +255,5 @@ struct thread_struct {
 #ifdef CONFIG_X86_64
 	unsigned long		fsbase;
 	unsigned long		gsbase;
+
 ```
