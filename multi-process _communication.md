@@ -1,6 +1,6 @@
 ```
 multi-process communication
-- within host
+- within host (single msg posting, msg broadcasting)
 - cross hosts
 
 ```
