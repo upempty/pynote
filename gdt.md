@@ -230,12 +230,12 @@ get_tss(void) {
 ```
 
 - TSS ususally one/two entries in GDT, not all entries for all processes at least for X86
+  ![image](https://github.com/upempty/pynote/assets/52414719/63f64fa3-8829-4ca1-bb30-6fad5d4c9fad)
+  ![image](https://github.com/upempty/pynote/assets/52414719/e0818f85-bbff-4dcf-af3d-d411fac6d6dc)
+
 ```
 -- and TR task register includes the TSS description info, but also selector included which is entry location index in GDT.
 Which is fixed 8 or 16 index in GDT as below.
-![image](https://github.com/upempty/pynote/assets/52414719/63f64fa3-8829-4ca1-bb30-6fad5d4c9fad)
-![image](https://github.com/upempty/pynote/assets/52414719/e0818f85-bbff-4dcf-af3d-d411fac6d6dc)
-
 
 #if defined(CONFIG_X86_32) && !defined(BUILD_VDSO32_64)
 #define GDT_ENTRY_TSS			16-------------------
