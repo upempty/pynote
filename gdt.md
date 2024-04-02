@@ -229,7 +229,108 @@ get_tss(void) {
 }
 ```
 
-- Nowadays use TLS descriptors in GDT instead of TSS. 
+- TSS ususally one/two entries in GDT, not all entries for all processes at least for X86
+```
+-- and TR task register includes the TSS description info, but also selector included which is entry location index in GDT.
+Which is fixed 8 or 16 index in GDT as below.
+![image](https://github.com/upempty/pynote/assets/52414719/63f64fa3-8829-4ca1-bb30-6fad5d4c9fad)
+![image](https://github.com/upempty/pynote/assets/52414719/e0818f85-bbff-4dcf-af3d-d411fac6d6dc)
+
+
+#if defined(CONFIG_X86_32) && !defined(BUILD_VDSO32_64)
+#define GDT_ENTRY_TSS			16-------------------
+#else /* 64-bit: */
+/* Needs two entries */
+#define GDT_ENTRY_TSS			8--------------------
+/* Needs two entries */
+#define GDT_ENTRY_LDT			10
+
+/*
+ * The layout of the per-CPU GDT under Linux:
+ *
+ *   0 - null								<=== cacheline #1
+ *   1 - reserved
+ *   2 - reserved
+ *   3 - reserved
+ *
+ *   4 - unused								<=== cacheline #2
+ *   5 - unused
+ *
+ *  ------- start of TLS (Thread-Local Storage) segments:
+ *
+ *   6 - TLS segment #1			[ glibc's TLS segment ]
+ *   7 - TLS segment #2			[ Wine's %fs Win32 segment ]
+ *   8 - TLS segment #3							<=== cacheline #3
+ *   9 - reserved
+ *  10 - reserved
+ *  11 - reserved
+ *
+ *  ------- start of kernel segments:
+ *
+ *  12 - kernel code segment						<=== cacheline #4
+ *  13 - kernel data segment
+ *  14 - default user CS
+ *  15 - default user DS
+ *  16 - TSS								<=== cacheline #5
+ *  17 - LDT
+ *  18 - PNPBIOS support (16->32 gate)
+ *  19 - PNPBIOS support
+ *  20 - PNPBIOS support						<=== cacheline #6
+ *  21 - PNPBIOS support
+ *  22 - PNPBIOS support
+ *  23 - APM BIOS support
+ *  24 - APM BIOS support						<=== cacheline #7
+ *  25 - APM BIOS support
+ *
+ *  26 - ESPFIX small SS
+ *  27 - per-cpu			[ offset to per-cpu data area ]
+ *  28 - VDSO getcpu
+ *  29 - unused
+ *  30 - unused
+ *  31 - TSS for double fault handler
+ */
+
+
+
+	/* Restore the TSS, RO GDT, LDT, and usermode-relevant MSRs. */
+	fix_processor_context();
+
+
+static void fix_processor_context(void)
+{
+	int cpu = smp_processor_id();
+#ifdef CONFIG_X86_64
+	struct desc_struct *desc = get_cpu_gdt_rw(cpu);
+	tss_desc tss;
+#endif
+
+	/*
+	 * We need to reload TR, which requires that we change the
+	 * GDT entry to indicate "available" first.
+	 *
+	 * XXX: This could probably all be replaced by a call to
+	 * force_reload_TR().
+	 */
+	set_tss_desc(cpu, &get_cpu_entry_area(cpu)->tss.x86_tss);
+
+or 
+	set_tss_desc(cpu, &get_cpu_entry_area(cpu)->tss.x86_tss);
+
+	load_TR_desc();
+
+#define set_tss_desc(cpu, addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
+static inline void __set_tss_desc(unsigned cpu, unsigned int entry, struct x86_hw_tss *addr)
+{
+	struct desc_struct *d = get_cpu_gdt_rw(cpu);
+	tss_desc tss;
+
+	set_tssldt_descriptor(&tss, (unsigned long)addr, DESC_TSS,
+			      __KERNEL_TSS_LIMIT);
+	write_gdt_entry(d, entry, &tss, DESC_TSS);
+}
+
+```
+- Nowadays use TLS descriptors in GDT instead of TSS? not sure it's the same purpose.
 ```
 #define GDT_SIZE			(GDT_ENTRIES*8)
 #define GDT_ENTRY_TLS_ENTRIES		3
