@@ -1,0 +1,2 @@
+- https://docs.freebsd.org/en/books/arch-handbook/boot/
+- 
