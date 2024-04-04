@@ -2,6 +2,7 @@
 ```
 typedef struct {
   int lock; //1 means locked by.
+  // other fields.
 } p_lock_t;
 
 int p_to_lock(p_lock_t *p) {
