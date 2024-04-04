@@ -1,3 +1,21 @@
+- Task State Segments
+```
+Task-State Segments and Task Gates
+The TSS defines the state of the execution environment for a task. It includes the state of:
+GPR, segment registers, the EFLAGS register, the EIP register.
+segment selectors with stack pointers for three stack segments (one stack for each privilege level).
+segment selector for the LDT associated with the task and the base address of the paging-structure hierarchy.
+All program execution in protected mode happens within the context of a task called the current task.
+In switching tasks, the processor performs the following actions:
+Stores the state of the current task in the current TSS.
+Loads the task register with the segment selector for the new task.
+Accesses the new TSS through a segment descriptor in the GDT.
+Loads the state of the new task from the new TSS into the general-purpose registers, the segment registers, the LDTR, control register CR3, the EFLAGS register, and the EIP register.
+Begins execution of the new task.
+A task can also be accessed through a task gate. A task gate is similar to a call gate, except that it provides access (through a segment selector) to a TSS rather than a code segment
+```
+
+
 - segmentation
 ```
 Because Linux is designed for a wide variety of platforms, some of which offer only limited support for segmentation, Linux supports minimal segmentation. Specifically Linux uses only 6 segments:
