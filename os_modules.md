@@ -1,5 +1,6 @@
 
 -todo
+  http://skelix.net/skelixos/index_en.html
 ```
 gcc, qemu(vmare)
 bootsttrap for 'hellworld'
