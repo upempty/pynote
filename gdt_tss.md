@@ -1,4 +1,5 @@
 - Task State Segments for task switching
+- https://github.com/LordNoteworthy/cpu-internals/blob/master/README.md#chapter-4-paging
 ```
 Task-State Segments and Task Gates
 The TSS defines the state of the execution environment for a task. It includes the state of:
