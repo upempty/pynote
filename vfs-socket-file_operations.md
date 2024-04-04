@@ -1,7 +1,7 @@
 
 ```
 - socket and VFS
-
+- socket id is unique within the process level, but children process also can share to use the same socket fd.
 ===vfs file.
 file->const struct file_operations	*f_op---which is associated with ocket_file_ops when socket() created.
 so if need to use VFS api to receive/read the msg, 
