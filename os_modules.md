@@ -1,4 +1,18 @@
 
+-todo
+```
+gcc, qemu(vmare)
+bootsttrap for 'hellworld'
+protected mode
+print func
+interrupt/exception/syscall
+syscall/executing program
+
+multitasking
+filesystem
+memory management
+```
+
 ```
 Memory management
 Process scheduling
