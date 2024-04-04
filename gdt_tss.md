@@ -360,3 +360,18 @@ struct thread_struct {
 	unsigned long		gsbase;
 
 ```
+- load TSS
+```
+TSS in software multitasking
+For each CPU which executes processes possibly wanting to do system calls via interrupts, one TSS is required. The only interesting fields are SS0 and ESP0. Whenever a system call occurs, the CPU gets the SS0 and ESP0-value in its TSS and assigns the stack-pointer to it. So one or more kernel-stacks need to be set up for processes doing system calls. Be aware that a thread's/process' time-slice may end during a system call, passing control to another thread/process which may as well perform a system call, ending up in the same stack. Solutions are to create a private kernel-stack for each thread/process and re-assign esp0 at any task-switch or to disable scheduling during a system-call (see also Kernel Multitasking).
+
+Setting up a TSS is straight-forward. An entry in the Global Descriptor Table is needed (see also the GDT Tutorial), specifying the TSS' address as "base", TSS' size as "limit", 0x89 (Present|Executable|Accessed) as "access byte" and 0x40 (Size-bit) as "flags". In the TSS itself, the members "SS0", "ESP0" and "IOPB offset" are to be set:
+
+SS0 gets the kernel datasegment descriptor (e.g. 0x10 if the third entry in your GDT describes your kernel's data)
+ESP0 gets the value the stack-pointer shall get at a system call
+IOPB may get the value sizeof(TSS) (which is 104) if you don't plan to use this io-bitmap further (according to mystran in http://forum.osdev.org/viewtopic.php?t=13678)
+The actual loading of the TSS must take place in protected mode and after the GDT has been loaded. The loading is simple as:
+
+mov ax, 0x??  ;The descriptor of the TSS in the GDT (e.g. 0x28 if the sixths entry in your GDT describes your TSS)
+ltr ax        ;The actual load
+```
