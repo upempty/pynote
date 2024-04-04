@@ -3,6 +3,8 @@
 - socket and VFS
 - socket id is unique within the process level, but children process also can share to use the same socket fd.
 ===vfs file, different file operation for different "file type"
+===vfs abstract for file types: regular file, directory, socket, pipe, device file,
+=== symbolic link, evnetfd, semaphore, msg queue, shared memory, mount point etc.
 file->const struct file_operations	*f_op---which is associated with ocket_file_ops when socket() created.
 so if need to use VFS api to receive/read the msg, 
 then it needs to use read_iter, which is defined for socket file operations, not defining the read(), but read_iter.
