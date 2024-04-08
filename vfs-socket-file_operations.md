@@ -5,17 +5,17 @@
 ===vfs file, different file operation for different "file type"
 ===vfs abstract for file types: regular file, directory, socket, pipe, device file,
 === symbolic link, evnetfd, semaphore, msg queue, shared memory, mount point etc.
-file->const struct file_operations	*f_op---which is associated with ocket_file_ops when socket() created.
+file->const struct file_operations	*f_op---which is associated with socket_file_ops when socket() created.
 so if need to use VFS api to receive/read the msg, 
-then it needs to use read_iter, which is defined for socket file operations, not defining the read(), but read_iter.
+then it needs to use read_iter, which is defined for socket file operations, even not defining the read(), but read_iter.
 And to get socket from file->private_data.
 
 struct file_operations {
 	struct module *owner;
 	loff_t (*llseek) (struct file *, loff_t, int);
-	ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);--------------seems not assigned?
+	ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);--------------either read or read_iter is assigned as it's enough one of them is not null assigned.
 	ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
-	ssize_t (*read_iter) (struct kiocb *, struct iov_iter *);--------------------aasign in socket file ops.
+	ssize_t (*read_iter) (struct kiocb *, struct iov_iter *);--------------------either read or read_iter is assigned as it's enough one of them is not null assigned.
 	ssize_t (*write_iter) (struct kiocb *, struct iov_iter *);
 
 
@@ -139,10 +139,149 @@ struct file {
    file->f_op-> socket_file_ops
         ->private_data ->socket structure detail info (state, protocol, buffers)
 
-socket_file_ops里么有read write，也没send recv
-目前没有write read用了，只有send recv via proto_ops.
-and read_iter still in file_ops.
-proto_ops:------------------------.poll  = tcp_poll, if not used/overwrite, then to use below sock_poll.
+socket_file_ops
+- read and write which is actually abstract file operation:
+- send and recv it is via proto_ops.
+f_op:-----------------------------
+either read or read_iter is assigned as it's enough one of them is not null assigned.
+-- read()==SYSCALL_DEFINE3(read...)->ksys_read->vfs_read->
+vfs_read
+== ret = file->f_op->read(file, buf, count, pos);
+const struct file_operations	*f_op;
+struct file_operations {
+	struct module *owner;
+	loff_t (*llseek) (struct file *, loff_t, int);
+	ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);
+	ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
+
+===vfs_read
+	if (file->f_op->read)----------------------------------- some file operation assigned this,
+		ret = file->f_op->read(file, buf, count, pos);
+	else if (file->f_op->read_iter)------------------------- some file operation assigned this, e.g. socket!!!
+		ret = new_sync_read(file, buf, count, pos);----ret = call_read_iter(filp, &kiocb, &iter);--->return file->f_op->read_iter(kio, iter);
+	else
+		ret = -EINVAL;
+
+===vfs_write
+	if (file->f_op->write)
+		ret = file->f_op->write(file, buf, count, pos);
+	else if (file->f_op->write_iter)
+		ret = new_sync_write(file, buf, count, pos);
+	else
+		ret = -EINVAL;
+
+
+socket file:
+
+https://elixir.bootlin.com/linux/latest/source/net/socket.c#L154
+/*
+ *	Socket files have a set of 'special' operations as well as the generic file ones. These don't appear
+ *	in the operation structures but are done directly via the socketcall() multiplexor.
+ */
+
+static const struct file_operations socket_file_ops = {
+	.owner =	THIS_MODULE,
+	.llseek =	no_llseek,
+	.read_iter =	sock_read_iter,----------------------------------------------------can be called inside of vfs_read.
+	.write_iter =	sock_write_iter,
+	.poll =		sock_poll,
+	.unlocked_ioctl = sock_ioctl,
+#ifdef CONFIG_COMPAT
+	.compat_ioctl = compat_sock_ioctl,
+#endif
+	.uring_cmd =    io_uring_cmd_sock,
+	.mmap =		sock_mmap,
+	.release =	sock_close,
+	.fasync =	sock_fasync,
+	.splice_write = splice_to_socket,
+	.splice_read =	sock_splice_read,
+	.splice_eof =	sock_splice_eof,
+	.show_fdinfo =	sock_show_fdinfo,
+};
+
+
+
+int register_filesystem(struct file_system_type * fs)
+{
+	int res = 0;
+	struct file_system_type ** p;
+
+	if (fs->parameters &&
+	    !fs_validate_description(fs->name, fs->parameters))
+		return -EINVAL;
+
+	BUG_ON(strchr(fs->name, '.'));
+	if (fs->next)
+		return -EBUSY;
+	write_lock(&file_systems_lock);
+	p = find_filesystem(fs->name, strlen(fs->name));
+	if (*p)
+		res = -EBUSY;
+	else
+		*p = fs;
+	write_unlock(&file_systems_lock);
+	return res;
+}
+
+
+static inline void register_as_ext2(void)
+{
+	int err = register_filesystem(&ext2_fs_type);
+	if (err)
+		printk(KERN_WARNING
+		       "EXT4-fs: Unable to register as ext2 (%d)\n", err);
+}
+
+
+
+err = register_filesystem(&ext4_fs_type);
+ext4_init_fs(void)
+
+static struct file_system_type ext2_fs_type = {
+	.owner			= THIS_MODULE,
+	.name			= "ext2",
+	.init_fs_context	= ext4_init_fs_context,
+	.parameters		= ext4_param_specs,
+	.kill_sb		= ext4_kill_sb,
+	.fs_flags		= FS_REQUIRES_DEV,
+};
+
+static struct file_system_type ext4_fs_type = {
+	.owner			= THIS_MODULE,
+	.name			= "ext4",
+	.init_fs_context	= ext4_init_fs_context,
+	.parameters		= ext4_param_specs,
+	.kill_sb		= ext4_kill_sb,
+	.fs_flags		= FS_REQUIRES_DEV | FS_ALLOW_IDMAP,
+};
+
+-- register_filesystem to file_systems (e.g. ext2, ext4, socket etc).
+socket: https://elixir.bootlin.com/linux/latest/source/net/socket.c#L3283
+sock_init(void)->err = register_filesystem(&sock_fs_type);
+
+static struct file_system_type sock_fs_type = {
+	.name =		"sockfs",
+	.init_fs_context = sockfs_init_fs_context,
+	.kill_sb =	kill_anon_super,
+};
+
+static int sockfs_init_fs_context(struct fs_context *fc)
+{
+	struct pseudo_fs_context *ctx = init_pseudo(fc, SOCKFS_MAGIC);
+	if (!ctx)
+		return -ENOMEM;
+	ctx->ops = &sockfs_ops;
+	ctx->dops = &sockfs_dentry_operations;
+
+
+static const struct super_operations sockfs_ops = {
+	.alloc_inode	= sock_alloc_inode,-------------------------------------------------------
+	.free_inode	= sock_free_inode,
+	.statfs		= simple_statfs,
+};
+
+
+proto_ops:------------------------e.g. .poll  = tcp_poll, if not used/overwrite, then to use below sock_poll.
 file_operations socket_file_ops--.poll  = sock_poll,
 
 but in proto_ops.
