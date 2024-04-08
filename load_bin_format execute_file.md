@@ -1,4 +1,4 @@
-- search_binary_handler
+- bin file to be loaded for executing
 
 ```
 cycle the list of binary formats handler, until one recognizes the image via search_binary_handler
