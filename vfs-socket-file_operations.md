@@ -1,6 +1,6 @@
 
-```
 - socket and VFS
+```
 - socket id is unique within the process level, but children process also can share to use the same socket fd.
 ===vfs file, different file operation for different "file type"
 ===vfs abstract for file types: regular file, directory, socket, pipe, device file,
@@ -131,7 +131,7 @@ struct file {
 
 ```
 
-- levels to use protocol operations or file operations(regular or socket or eventfd or else)
+- socket: levels to use protocol operations or file operations (f_op: regular or socket or eventfd or else)
 
 ```
 vfs to associate fd with underlayer socket, so can use common abstract API whatever regular file or net socket etc.
