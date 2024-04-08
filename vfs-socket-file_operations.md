@@ -198,8 +198,6 @@ static const struct file_operations socket_file_ops = {
 	.show_fdinfo =	sock_show_fdinfo,
 };
 
-
-
 int register_filesystem(struct file_system_type * fs)
 {
 	int res = 0;
@@ -252,31 +250,6 @@ static struct file_system_type ext4_fs_type = {
 	.parameters		= ext4_param_specs,
 	.kill_sb		= ext4_kill_sb,
 	.fs_flags		= FS_REQUIRES_DEV | FS_ALLOW_IDMAP,
-};
-
--- register_filesystem to file_systems (e.g. ext2, ext4, socket etc).
-socket: https://elixir.bootlin.com/linux/latest/source/net/socket.c#L3283
-sock_init(void)->err = register_filesystem(&sock_fs_type);
-
-static struct file_system_type sock_fs_type = {
-	.name =		"sockfs",
-	.init_fs_context = sockfs_init_fs_context,
-	.kill_sb =	kill_anon_super,
-};
-
-static int sockfs_init_fs_context(struct fs_context *fc)
-{
-	struct pseudo_fs_context *ctx = init_pseudo(fc, SOCKFS_MAGIC);
-	if (!ctx)
-		return -ENOMEM;
-	ctx->ops = &sockfs_ops;
-	ctx->dops = &sockfs_dentry_operations;
-
-
-static const struct super_operations sockfs_ops = {
-	.alloc_inode	= sock_alloc_inode,-------------------------------------------------------
-	.free_inode	= sock_free_inode,
-	.statfs		= simple_statfs,
 };
 
 
@@ -509,5 +482,60 @@ struct proc_ops {
 	ssize_t (*proc_read_iter)(struct kiocb *, struct iov_iter *);
 
 
+
+```
+- socket + inode association
+```
+struct socket_alloc {
+	struct socket socket;
+	struct inode vfs_inode;
+};
+
+
+static struct inode *sock_alloc_inode(struct super_block *sb)
+{
+	struct socket_alloc *ei;
+
+	ei = alloc_inode_sb(sb, sock_inode_cachep, GFP_KERNEL);
+	if (!ei)
+		return NULL;
+	init_waitqueue_head(&ei->socket.wq.wait);
+	ei->socket.wq.fasync_list = NULL;
+	ei->socket.wq.flags = 0;
+
+	ei->socket.state = SS_UNCONNECTED;
+	ei->socket.flags = 0;
+	ei->socket.ops = NULL;
+	ei->socket.sk = NULL;
+	ei->socket.file = NULL;
+
+	return &ei->vfs_inode;
+}
+
+
+-- register_filesystem to file_systems (e.g. ext2, ext4, socket etc).
+socket: https://elixir.bootlin.com/linux/latest/source/net/socket.c#L3283
+sock_init(void) -> err = register_filesystem(&sock_fs_type);
+
+static struct file_system_type sock_fs_type = {
+	.name =		"sockfs",
+	.init_fs_context = sockfs_init_fs_context,
+	.kill_sb =	kill_anon_super,
+};
+
+static int sockfs_init_fs_context(struct fs_context *fc)
+{
+	struct pseudo_fs_context *ctx = init_pseudo(fc, SOCKFS_MAGIC);
+	if (!ctx)
+		return -ENOMEM;
+	ctx->ops = &sockfs_ops;
+	ctx->dops = &sockfs_dentry_operations;
+
+
+static const struct super_operations sockfs_ops = {
+	.alloc_inode	= sock_alloc_inode,-------------------------------------------------------
+	.free_inode	= sock_free_inode,
+	.statfs		= simple_statfs,
+};
 
 ```
