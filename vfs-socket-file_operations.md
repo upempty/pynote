@@ -134,14 +134,13 @@ struct file {
 - levels to use protocol operations or file operations(regular or socket or eventfd or else)
 
 ```
-1 层级不一样：用户模式和内核模式
-2 vfs to associate fd with underlayer socket, so can use common abstract API whatever regular file or net socket etc.
+vfs to associate fd with underlayer socket, so can use common abstract API whatever regular file or net socket etc.
    file->f_op-> socket_file_ops
         ->private_data ->socket structure detail info (state, protocol, buffers)
 
 socket_file_ops
-- read and write which is actually abstract file operation:
-- send and recv it is via proto_ops.
+- function read and write which is actually abstract f_op (file operation):
+- function send and recv it is via proto_ops.
 f_op:-----------------------------
 either read or read_iter is assigned as it's enough one of them is not null assigned.
 -- read()==SYSCALL_DEFINE3(read...)->ksys_read->vfs_read->
