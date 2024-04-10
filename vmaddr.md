@@ -9,6 +9,9 @@ X86 page translation: virtual page + offset  <-TLB-> physical page + offset.
 
 ![image](https://github.com/upempty/pynote/assets/52414719/3c1baaae-7f36-488e-b2f6-cefc9a5cee6b)
 
+![image](https://github.com/upempty/pynote/assets/52414719/6ee9e6db-f79d-4edf-9ae2-4ba6eb1d9677)
+
+
 - CR3 why physical: quck access for page enties, and seperate CR3 for CPU cores.
 
 - Context switch to another process
