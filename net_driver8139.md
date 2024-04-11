@@ -1,4 +1,5 @@
-To understand the NIC driver for transmit and receive packets,so to view different version for varies thought, and note that legacy code  may have bugs.
+To understand the NIC driver for transmit and receive packets,   
+so to view different version for varies thought, and note that legacy code  may have bugs.
 
 ```
 
@@ -8,8 +9,5 @@ vs
 https://elixir.bootlin.com/linux/v6.0/source/drivers/net/ethernet/realtek/8139too.c
 vs
 https://elixir.bootlin.com/linux/2.0.37pre2/source/drivers/net/rtl8139.c#L204
-
-vs
-
 
 ```
