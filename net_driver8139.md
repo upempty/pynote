@@ -16,9 +16,18 @@ PCIe uses switch: even serial trasmit but avoid sync, and  can use multiple lane
 ```
 ![image](https://github.com/upempty/pynote/assets/52414719/b80c8559-fd91-460a-9142-5a056e71d3db)
 
-
+- kmain_start-> initcall_init() -> initcall_foreach(call_fn) -> initcall_late_register(network_init) -> network_init()
 
 ```
+// recv callback via register/interrupt
+  if (rtl8139_init(device)) {
+    net_driver = rtl8139_driver();
+  }
+
+
+// transmit func
+load_network_config(kernel_cfg, net_driver);
+
 
 void ethernet_send_frame(net_interface_t* interface,
                          uint8_t dst_mac[6],
