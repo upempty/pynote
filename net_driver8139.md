@@ -15,3 +15,33 @@ PCI parallel connection (sync so that slow).
 PCIe uses switch: even serial trasmit but avoid sync, and  can use multiple lanes for different flow.
 ```
 ![image](https://github.com/upempty/pynote/assets/52414719/b80c8559-fd91-460a-9142-5a056e71d3db)
+
+
+
+```
+
+void ethernet_send_frame(net_interface_t* interface,
+                         uint8_t dst_mac[6],
+                         uint16_t ethertype,
+                         uint8_t* data,
+                         uint32_t len)
+{
+  ethernet_header_t header = { .ethertype = htons(ethertype) };
+  memcpy(header.src_mac, interface->mac, 6);
+  memcpy(header.dst_mac, dst_mac, 6);
+
+  uint32_t frame_len = sizeof(ethernet_header_t) + len;
+
+  if (frame_len < 64) {
+    frame_len = 64;
+  }
+
+  uint8_t* frame = (uint8_t*)calloc(1, frame_len);
+  memcpy(frame, &header, sizeof(ethernet_header_t));
+  memcpy(frame + sizeof(ethernet_header_t), data, len);
+
+  interface->driver->transmit(frame, frame_len);
+
+  free(frame);
+}
+```
