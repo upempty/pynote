@@ -16,6 +16,14 @@ PCIe uses switch: even serial trasmit but avoid sync, and  can use multiple lane
 ```
 ![image](https://github.com/upempty/pynote/assets/52414719/b80c8559-fd91-460a-9142-5a056e71d3db)
 
+- Interface from DMAed packet from NIC HW in received buffer
+```
+- ??? rtl8139.c and rtl8139.h
+```
+- Interface for transmit buffer filled to be ready for DMAing to NIC HW.
+```
+- ??? rtl8139.c and rtl8139.h
+```
 - kmain_start-> initcall_init() -> initcall_foreach(call_fn) -> initcall_late_register(network_init) -> network_init()
 
 ```
