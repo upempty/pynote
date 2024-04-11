@@ -10,4 +10,4 @@ vs
 https://elixir.bootlin.com/linux/2.0.37pre2/source/drivers/net/rtl8139.c#L204
 
 PCI vs PCIe
-![image](https://github.com/upempty/pynote/assets/52414719/ddb21d4b-17ca-429a-8bfe-1c985683eefe)
+![image](https://github.com/upempty/pynote/assets/52414719/b80c8559-fd91-460a-9142-5a056e71d3db)
