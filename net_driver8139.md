@@ -9,5 +9,9 @@ https://elixir.bootlin.com/linux/v6.0/source/drivers/net/ethernet/realtek/8139to
 vs
 https://elixir.bootlin.com/linux/2.0.37pre2/source/drivers/net/rtl8139.c#L204
 
-PCI vs PCIe
+PCI vs PCIe  
+```
+PCI parallel connection (sync so that slow).  
+PCIe uses switch: even serial trasmit but avoid sync, and  can use multiple lanes for different flow.
+```
 ![image](https://github.com/upempty/pynote/assets/52414719/b80c8559-fd91-460a-9142-5a056e71d3db)
