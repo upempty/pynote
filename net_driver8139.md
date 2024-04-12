@@ -16,6 +16,15 @@ PCIe uses switch: even serial trasmit but avoid sync, and  can use multiple lane
 ```
 ![image](https://github.com/upempty/pynote/assets/52414719/b80c8559-fd91-460a-9142-5a056e71d3db)
 
+
+- Tx and Rx descriptor and buffers for descriptor.
+```
+check via ethtool -g interfacename:
+buffer size defined (TBC futher) in NIC driver. Probably the total buffer size for DMA is
+- BufferSize x TxDesc numbers = Tx total buffers;
+- BufferSize x RxDesc numbers = Rx total buffers;
+
+```
 - Interface from DMAed packet from NIC HW in received buffer
 ```
 - ??? rtl8139.c and rtl8139.h
