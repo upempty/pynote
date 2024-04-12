@@ -19,7 +19,7 @@ PCIe uses switch: even serial trasmit but avoid sync, and  can use multiple lane
 
 - Tx and Rx descriptor and buffers for descriptor.
 ```
-check via ethtool -g interfacename:
+check via ethtool -g interfacename to get counts of Tx and Rx descriptors.
 buffer size defined (TBC futher) in NIC driver. Probably the total buffer size for DMA is
 - BufferSize x TxDesc numbers = Tx total buffers;
 - BufferSize x RxDesc numbers = Rx total buffers;
