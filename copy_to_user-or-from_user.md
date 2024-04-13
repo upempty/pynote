@@ -1,4 +1,6 @@
 
+从用户空间读取数据，或向用户空间返回数据的系统调用，内部都会有显式或隐式的调用copy_to_user()/copy_from_user()的功能。
+e.g.
 when send(), the buffer in userspace will be passed into kernel space (even virtual address is the same, but the previlige is not the same, so it shall use copy_to_user from buffer, and also for address if used).
 ```
 
