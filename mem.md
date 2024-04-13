@@ -1,9 +1,17 @@
 - slab
-used in kernel
+  - used in kernel
+- kmalloc
+  -  used in kenel, return vm, but physical address is continus, so usually to allocate small memory block, as it's easy to find the continus part of small.
+  -  not need extra page table item, can directly mapping to kernel space, high efficiency. can e.g use virt_to_phys(v).
+  -  as continus, the alloctated mem can be used for DMA usage. as some HW requires phys address continus.
+- vmalloc
+  - used in kernel, return vm, and virtual address continus, but physical not must be. it is suitable to allocate big memory.
+  - need extra page table item, to mapping to kernel space, low efficiency. can not used for DMA probably.  
 - malloc (glibc)
-uses ptmalloc or other ways in userspace. maintain free list, similar as buddy system, but not buddy system.
+  - uses ptmalloc or other ways in userspace. maintain free list, similar as buddy system, but not buddy system.
 - paging: 
   - is mainly for simplify the mm, so that os can allocate or release page based, but not any size of memory block.  
   - memory protected: access right (read/write/exec) for each page?  
   - vm page converted to physical memory via MMU, TLB as cache to be used.  
-  - when process needs memory, os will dispatch whole page, but not part of page to it. So one page will be whole allocated to one process, but not splited to multiple process.  
+  - when process needs memory, os will dispatch whole page, but not part of page to it. So one page will be whole allocated to one process, but not splited to multiple process.
+  - 
