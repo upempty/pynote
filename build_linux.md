@@ -53,9 +53,9 @@ clean:
         make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 
 ```
-- build
+- build  
 make
-- kernel install/uninstall
+- kernel install/uninstall  
   ismod hello.ko/rmmod hello(rmmod hello.ko)
   dmesg
   
