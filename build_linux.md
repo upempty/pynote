@@ -58,4 +58,5 @@ make
 - kernel install/uninstall  
   ismod hello.ko/rmmod hello(rmmod hello.ko)  
   dmesg  
-  
+
+How to add kernel module to linux x86 source code?  
