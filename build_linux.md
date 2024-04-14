@@ -56,6 +56,6 @@ clean:
 - build  
 make
 - kernel install/uninstall  
-  ismod hello.ko/rmmod hello(rmmod hello.ko)
-  dmesg
+  ismod hello.ko/rmmod hello(rmmod hello.ko)  
+  dmesg  
   
