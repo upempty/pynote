@@ -15,7 +15,7 @@ output:
 ```
 
 Build kernel modules on running linux system
-- sourcode
+- sourecode
 ```
 [root@iZbp1evissossq564e432eZ hellow]# ls -lrt
 total 8
