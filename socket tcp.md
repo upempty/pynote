@@ -1,2 +1,0 @@
-- PCB(protocol control block)
-- sk buffer
