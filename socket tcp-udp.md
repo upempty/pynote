@@ -1,4 +1,4 @@
--
+
 - PCB(protocol control block)  
 - sk buffer  
 - socket connection to use by application (TCP or UDP)  
