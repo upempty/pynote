@@ -1,5 +1,5 @@
 
-- msg queue
+- msg queue (msgget, msgsnd, msgrcv...)
 ```
 /* one msg_msg structure for each message */
 struct msg_msg {
