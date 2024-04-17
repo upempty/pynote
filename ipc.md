@@ -1,6 +1,16 @@
 
 - msg queue (msgget, msgsnd, msgrcv...)
 ```
+----msg queue
+	struct ipc_namespace *ns;
+	static const struct ipc_ops msg_ops = {
+		.getnew = newque,
+		.associate = security_msg_queue_associate,
+	};
+
+
+
+
 /* one msg_msg structure for each message */
 struct msg_msg {
 	struct list_head m_list;
@@ -108,3 +118,49 @@ struct msg_queue {
 
 
 ```
+
+
+- sharememory (shmget, shmat, ...)
+```
+
+==sharedmem
+long ksys_shmget(key_t key, size_t size, int shmflg)
+{
+	struct ipc_namespace *ns;
+	static const struct ipc_ops shm_ops = {
+		.getnew = newseg,
+		.associate = security_shm_associate,
+		.more_checks = shm_more_checks,
+	};
+	struct ipc_params shm_params;
+
+----------
+
+static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
+{
+
+
+	sprintf(name, "SYSV%08x", key);
+
+
+		hugesize = ALIGN(size, huge_page_size(hs));
+
+		/* hugetlb_file_setup applies strict accounting */
+		if (shmflg & SHM_NORESERVE)
+			acctflag = VM_NORESERVE;
+		file = hugetlb_file_setup(name, hugesize, acctflag,
+				HUGETLB_SHMFS_INODE, (shmflg >> SHM_HUGE_SHIFT) & SHM_HUGE_MASK);
+
+------->
+	inode->i_size = size;
+	clear_nlink(inode);
+
+	if (!hugetlb_reserve_pages(inode, 0,
+			size >> huge_page_shift(hstate_inode(inode)), NULL,
+			acctflag))
+		file = ERR_PTR(-ENOMEM);
+	else
+		file = alloc_file_pseudo(inode, mnt, name, O_RDWR,
+					&hugetlbfs_file_operations);
+```
+
