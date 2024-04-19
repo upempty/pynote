@@ -1,9 +1,46 @@
 
 
+- user space sending msg
+```
+int ret = sendmsg(sock_fd, &msg, 0);
+```
+
+- user space receiving msg
+```
+recvmsg(sock_fd, &msg, 0);  //msg is also receiver for read
+```
+
+- Kernel sending msg
+```
+pid = nlh->nlmsg_pid; // Sending process port ID, will send new message back to the 'user space sender'
+res = nlmsg_unicast(nl_sk, skb_out, pid); //nlmsg_unicast - unicast a netlink message
+```
+
+- Kernel receiving msg
+```
+static int __init hello_init(void)
+{
+	struct netlink_kernel_cfg cfg = {
+		.input = hello_nl_recv_msg, /////////////////////
+	};
+```  
+
+https://github.com/helight/kernel_modules/tree/master/netlink_test
+
 ![image](https://github.com/upempty/pynote/assets/52414719/3f69fc9e-e32b-4385-aaaf-05f8d713e32b)
+
+![image](https://github.com/upempty/pynote/assets/52414719/56a8eb79-d254-43b4-be7f-f16fac28878f)
+```
+static inline struct nlmsghdr *nlmsg_hdr(const struct sk_buff *skb)
+{
+	return (struct nlmsghdr *)skb->data;
+}
+
+```
 
 
 ```
+
 
 --struct netlink_sock *nlk = nlk_sk(sk);
 
