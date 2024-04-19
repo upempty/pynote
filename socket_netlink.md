@@ -48,7 +48,11 @@ genl_pernet_init(struct net *net) or or kernel module registered with new protoc
 genl_pernet_init(struct net *net)
 {
 	struct netlink_kernel_cfg cfg = {
-		.input		= genl_rcv,
+		.input		= genl_rcv,-----------none kernel sending.
+
+struct netlink_kernel_cfg cfg = {
+		.input = hello_nl_recv_msg, // inside including kernel msg/response sending to pid
+	};
 ...
   netlink_kernel_create
    -> __netlink_kernel_create
