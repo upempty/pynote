@@ -242,3 +242,45 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
 
 
 ```
+
+- broadcast
+```
+用户态：
+src_addr.nl_family = AF_NETLINK;
+src_addr.nl_pad = 0;
+src_addr.nl_pid = getpid();-----------------------------------------------
+src_addr.nl_groups = GROUP_IB; // Multicast--------------------------------
+
+err = bind(sock_fd, (struct sockaddr*)&src_addr, sizeof(src_addr));
+
+
+内核态:
+
+static void netlink_ib_open()
+{
+struct sk_buff *skb = NULL;
+struct nlmsghdr *nlh = NULL;
+int err;
+
+nl_sk = netlink_kernel_create(NETLINK_IB, GROUP_IB, nl_ib_data_ready,
+THIS_MODULE);
+if (nl_sk == NULL) {
+printk(KERN_ALERT "Error during netlink_kernel_create");
+}
+
+skb = alloc_skb(NLMSG_SPACE(MAX_PAYLOAD),GFP_KERNEL);
+nlh = (struct nlmsghdr *)skb->data;
+nlh = skb_put(skb, NLMSG_ALIGN(1024));
+nlh->nlmsg_pid = 0; // Send from kernel
+nlh->nlmsg_flags = 0;
+
+strcpy(NLMSG_DATA(nlh), "Greeting from kernel!");
+NETLINK_CB(skb).pid = 0;
+NETLINK_CB(skb).dst_pid = 0; //Multicast-------------------------------
+NETLINK_CB(skb).dst_group = GROUP_IB;// 0 if unicast-------------------
+
+printk( KERN_ALERT "Sending data...\n");
+//err = netlink_unicast(nl_sk, skb, 6992, GFP_KERNEL);
+err = netlink_broadcast(nl_sk, skb, 0, GROUP_IB, GFP_KERNEL);
+
+```
