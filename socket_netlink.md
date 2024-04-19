@@ -23,7 +23,39 @@ static int __init hello_init(void)
 	struct netlink_kernel_cfg cfg = {
 		.input = hello_nl_recv_msg, /////////////////////
 	};
-```  
+```
+
+- user sending->kernel recv----inside callback, then kernel send------>user receiving
+```
+static const struct proto_ops netlink_ops = {
+
+.sendmsg =	netlink_sendmsg,
+---
+netlink_sendmsg()
+ -> err = netlink_unicast(sk, skb, dst_portid, msg->msg_flags&MSG_DONTWAIT);
+  -> netlink_unicast_kernel(sk, skb, ssk);
+    -> nlk->netlink_rcv(skb);
+       !!!!!!!!!!!nlk_sk(sk)->netlink_rcv = cfg->input;
+----------------------for example, inside it will call nlmsg_unicast(nl_sk, skb_out, pid) for sedning to pid's recv queue user from kernel.
+------------------------by get pid/port id's sock, then send to this sock's buffer:
+--------------------------sk = netlink_getsockbyportid(ssk, portid);
+--------------------------netlink_sendskb(sk, skb);
+
+registered for kernel rcv func
+---
+genl_pernet_init(struct net *net) or or kernel module registered with new protocol:
+---------------
+genl_pernet_init(struct net *net)
+{
+	struct netlink_kernel_cfg cfg = {
+		.input		= genl_rcv,
+...
+  netlink_kernel_create
+   -> __netlink_kernel_create
+	 if (cfg && cfg->input)
+		 nlk_sk(sk)->netlink_rcv = cfg->input;
+
+```
 
 https://github.com/helight/kernel_modules/tree/master/netlink_test
 
