@@ -1,5 +1,11 @@
 
 
+    使用Netlink通过自定义一种新的协议并加入协议族即可通过socket API使用Netlink协议完成数据交换，而ioctl和proc文件系统均需要通过程序加入相应的设备或文件。  
+    Netlink使用socket缓存队列，是一种异步通信机制，而ioctl是同步通信机制，如果传输的数据量较大，会影响系统性能。  
+    Netlink支持多播，属于一个Netlink组的模块和进程都能获得该多播消息。  
+    Netlink允许内核发起会话，而ioctl和系统调用只能由用户空间进程发起。  
+
+
 - user space sending msg
 ```
 int ret = sendmsg(sock_fd, &msg, 0);
