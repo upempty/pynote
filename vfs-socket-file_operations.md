@@ -154,9 +154,9 @@ struct file_operations {
 	ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
 
 ===vfs_read
-	if (file->f_op->read)----------------------------------- some file operation assigned this,
+	if (file->f_op->read)-----------------------------------if there is some file operation assigned this,
 		ret = file->f_op->read(file, buf, count, pos);
-	else if (file->f_op->read_iter)------------------------- some file operation assigned this, e.g. socket!!!
+	else if (file->f_op->read_iter)-------------------------if there is some file operation assigned this, e.g. socket file ops indeed as below!!!!
 		ret = new_sync_read(file, buf, count, pos);----ret = call_read_iter(filp, &kiocb, &iter);--->return file->f_op->read_iter(kio, iter);
 	else
 		ret = -EINVAL;
