@@ -53,7 +53,17 @@ if addr: err = move_addr_to_kernel(addr, addr_len, &address);
 __sock_sendmsg(sock, &msg);
 	int err = security_socket_sendmsg(sock, msg,
 					  msg_data_left(msg));---socket_sendmsg if hook.FUNC is not null.
-	return err ?: sock_sendmsg_nosec(sock, msg);--inet_sendmsg---tcp_sendmsg, udp_sendmsg,
+	return err ?: sock_sendmsg_nosec(sock, msg);
+
+static inline int sock_sendmsg_nosec(struct socket *sock, struct msghdr *msg)
+{
+	int ret = INDIRECT_CALL_INET(READ_ONCE(sock->ops)->sendmsg,-----------------or 
+                                      inet6_sendmsg,--------------------------------or
+				     inet_sendmsg,----------------------------------or
+                                     sock, msg,
+				     msg_data_left(msg));
+
+--inet_sendmsg---tcp_sendmsg, udp_sendmsg,
 inet_sendmsg
 tcp_sendmsg/udp_sendmsg
 	lock_sock(sk);
