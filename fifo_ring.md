@@ -4,7 +4,7 @@
 
 ```
 fifo->in += len;
-fifo->in +=  len而未取模，unsigned int的溢出又会被置为0.
+fifo->in +=  len未取模是ok的，unsigned int的溢出又会被置为0.
 
 ```
   - https://github.com/torvalds/linux/blob/2c8159388952f530bd260e097293ccc0209240be/include/linux/kfifo.h#L4
