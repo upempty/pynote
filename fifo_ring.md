@@ -17,3 +17,6 @@ struct __kfifo {
 	void		*data;
 };
 ```
+- 无锁实现
+  - https://www.cnblogs.com/zengzy/p/5145899.html
+  - 
