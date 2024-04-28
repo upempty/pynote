@@ -19,6 +19,7 @@ struct __kfifo {
 };
 ```
 - 无锁实现
+  - https://www.cnblogs.com/sniperHW/p/4172248.html
   - https://www.cnblogs.com/zengzy/p/5145899.html
   - 
 ```
