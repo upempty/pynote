@@ -126,3 +126,13 @@ R14 (LR)	Link Register	–
 R15 (PC)	<- Program Counter / Instruction Pointer ->	EIP
 CPSR	Current Program State Register/Flags	EFLAGS
 ```
+
+```
+       CLONE_VM (since Linux 2.0)
+              If CLONE_VM is set, the calling process and the child
+              process run in the same memory space.
+
+              If CLONE_VM is not set, the child process runs in a
+              separate copy of the memory space of the calling process
+
+```
