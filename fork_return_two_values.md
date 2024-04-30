@@ -1,4 +1,4 @@
-## fork() child return 0 when child schuduled  
+## fork() child return value eax == 0 when child schuduled  
 
 ```
 /*
