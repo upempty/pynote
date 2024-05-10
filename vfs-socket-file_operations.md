@@ -211,11 +211,11 @@ int register_filesystem(struct file_system_type * fs)--------------------
 	if (fs->next)
 		return -EBUSY;
 	write_lock(&file_systems_lock);
-	p = find_filesystem(fs->name, strlen(fs->name));--------------------------------------------e.g. usbfs, ext2_fs, etc based on the name to searching. 
+	p = find_filesystem(fs->name, strlen(fs->name));----e.g. usbfs, ext2_fs, etc based on the name to searching. 
 	if (*p)
 		res = -EBUSY;
 	else
-		*p = fs;--------------------------------------------------------add this file type, e.g. usbfs, ext2_fs, etc. If not found, adding it.
+		*p = fs;-------add this file type, e.g. usbfs, ext2_fs, etc. If not found, adding it.
 	write_unlock(&file_systems_lock);
 	return res;
 }
