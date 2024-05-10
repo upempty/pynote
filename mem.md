@@ -1,3 +1,4 @@
+![image](https://github.com/upempty/pynote/assets/52414719/64f636ed-3115-41a0-ba0d-dec9fa4dc301)
 
 
 standand memory allocation:
