@@ -198,7 +198,7 @@ static const struct file_operations socket_file_ops = {
 	.show_fdinfo =	sock_show_fdinfo,
 };
 
-int register_filesystem(struct file_system_type * fs)
+int register_filesystem(struct file_system_type * fs)--------------------
 {
 	int res = 0;
 	struct file_system_type ** p;
@@ -211,11 +211,11 @@ int register_filesystem(struct file_system_type * fs)
 	if (fs->next)
 		return -EBUSY;
 	write_lock(&file_systems_lock);
-	p = find_filesystem(fs->name, strlen(fs->name));
+	p = find_filesystem(fs->name, strlen(fs->name));--------------------------------------------e.g. usbfs, ext2_fs, etc based on the name to searching. 
 	if (*p)
 		res = -EBUSY;
 	else
-		*p = fs;
+		*p = fs;--------------------------------------------------------add this file type, e.g. usbfs, ext2_fs, etc. If not found, adding it.
 	write_unlock(&file_systems_lock);
 	return res;
 }
@@ -534,8 +534,234 @@ static int sockfs_init_fs_context(struct fs_context *fc)
 
 static const struct super_operations sockfs_ops = {
 	.alloc_inode	= sock_alloc_inode,-------------------------------------------------------
+
 	.free_inode	= sock_free_inode,
 	.statfs		= simple_statfs,
 };
 
+```
+
+- device file for usb
+
+```
+==find file path(filetype---usbfs)'s inode, to get file_operations corresponding in device file level 
+e.g. /dev/usb/lp0
+
+
+
+
+736  int __init usbfs_init(void)
+737  {
+738  	int retval;
+739  
+740  	retval = register_filesystem(&usb_fs_type);----------------------------
+
+
+551  static struct file_system_type usb_fs_type = {
+552  	.owner =	THIS_MODULE,
+553  	.name =		"usbfs",------------------------------------------
+554  	.get_sb =	usb_get_sb,
+555  	.kill_sb =	kill_litter_super,
+556  };
+
+
+
+411  static struct file_operations default_file_operations = {
+412  	.read =		default_read_file,
+413  	.write =	default_write_file,
+414  	.open =		default_open,
+415  	.llseek =	default_file_lseek,
+416  };
+
+
+244  static struct inode *usbfs_get_inode (struct super_block *sb, int mode, dev_t dev)
+245  {
+246  	struct inode *inode = new_inode(sb);
+247  
+248  	if (inode) {
+249  		inode->i_mode = mode;
+250  		inode->i_uid = current->fsuid;
+251  		inode->i_gid = current->fsgid;
+252  		inode->i_blksize = PAGE_CACHE_SIZE;
+253  		inode->i_blocks = 0;
+254  		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+255  		switch (mode & S_IFMT) {
+256  		default:
+257  			init_special_inode(inode, mode, dev);
+258  			break;
+259  		case S_IFREG:
+260  			inode->i_fop = &default_file_operations;-------------------------
+
+
+
+2438  struct file_system_type {
+2439  	const char *name;-------------------------------------
+2440  	int fs_flags;
+2441  #define FS_REQUIRES_DEV		1
+2442  #define FS_BINARY_MOUNTDATA	2
+2443  #define FS_HAS_SUBTYPE		4
+2444  #define FS_USERNS_MOUNT		8	/* Can be mounted by userns root */
+2445  #define FS_DISALLOW_NOTIFY_PERM	16	/* Disable fanotify permission events */
+2446  #define FS_ALLOW_IDMAP         32      /* FS has been updated to handle vfs idmappings. */
+2447  #define FS_THP_SUPPORT		8192	/* Remove once all fs converted */
+2448  #define FS_RENAME_DOES_D_MOVE	32768	/* FS will handle d_move() during rename() internally. */
+2449  	int (*init_fs_context)(struct fs_context *);
+2450  	const struct fs_parameter_spec *parameters;
+2451  	struct dentry *(*mount) (struct file_system_type *, int,
+2452  		       const char *, void *);
+2453  	void (*kill_sb) (struct super_block *);
+2454  	struct module *owner;
+2455  	struct file_system_type * next;
+2456  	struct hlist_head fs_supers;
+2457  
+2458  	struct lock_class_key s_lock_key;
+2459  	struct lock_class_key s_umount_key;
+2460  	struct lock_class_key s_vfs_rename_key;
+2461  	struct lock_class_key s_writers_key[SB_FREEZE_LEVELS];
+2462  
+2463  	struct lock_class_key i_lock_key;
+2464  	struct lock_class_key i_mutex_key;
+2465  	struct lock_class_key invalidate_lock_key;
+2466  	struct lock_class_key i_mutex_dir_key;
+2467  };
+
+
+274  /* SMP-safe */
+275  static int usbfs_mknod (struct inode *dir, struct dentry *dentry, int mode,
+276  			dev_t dev)
+277  {
+278  	struct inode *inode = usbfs_get_inode(dir->i_sb, mode, dev);--------------------------
+279  	int error = -EPERM;
+
+
+460  static int fs_create_by_name (const char *name, mode_t mode,
+461  			      struct dentry *parent, struct dentry **dentry)
+462  {
+463  	int error = 0;
+464  
+465  	/* If the parent is not specified, we create it in the root.
+466  	 * We need the root dentry to do this, which is in the super
+467  	 * block. A pointer to that is in the struct vfsmount that we
+468  	 * have around.
+469  	 */
+470  	if (!parent ) {
+471  		if (usbfs_mount && usbfs_mount->mnt_sb) {
+472  			parent = usbfs_mount->mnt_sb->s_root;
+473  		}
+474  	}
+475  
+476  	if (!parent) {
+477  		dbg("Ah! can not find a parent!");
+478  		return -EFAULT;
+479  	}
+480  
+481  	*dentry = NULL;
+482  	mutex_lock(&parent->d_inode->i_mutex);
+483  	*dentry = lookup_one_len(name, parent, strlen(name));
+484  	if (!IS_ERR(dentry)) {
+485  		if ((mode & S_IFMT) == S_IFDIR)
+486  			error = usbfs_mkdir (parent->d_inode, *dentry, mode);----------------------
+487  		else
+488  			error = usbfs_create (parent->d_inode, *dentry, mode);---------------------
+
+
+496  static struct dentry *fs_create_file (const char *name, mode_t mode,
+497  				      struct dentry *parent, void *data,
+498  				      struct file_operations *fops,
+499  				      uid_t uid, gid_t gid)
+500  {
+501  	struct dentry *dentry;
+502  	int error;
+503  
+504  	dbg("creating file '%s'",name);
+505  ------
+506  	error = fs_create_by_name (name, mode, parent, &dentry);-------------------------------
+
+
+
+
+617  static void usbfs_add_bus(struct usb_bus *bus)
+618  {
+619  	struct dentry *parent;
+620  	char name[8];
+621  	int retval;
+622  
+623  	/* create the special files if this is the first bus added */
+624  	if (num_buses == 0) {
+625  		retval = create_special_files();---------------------------------------------
+626  		if (retval)
+627  			return;
+628  	}
+629  	++num_buses;
+630  
+631  	sprintf (name, "%03d", bus->busnum);
+632  
+633  	parent = usbfs_mount->mnt_sb->s_root;
+634  	bus->usbfs_dentry = fs_create_file (name, busmode | S_IFDIR, parent,
+635  					    bus, NULL, busuid, busgid);----------------------------------
+636  	if (bus->usbfs_dentry == NULL) {
+
+
+
+707  static int usbfs_notify(struct notifier_block *self, unsigned long action, void *dev)
+708  {
+709  	switch (action) {
+710  	case USB_DEVICE_ADD:
+711  		usbfs_add_device(dev);-----------------------------------------
+712  		break;
+713  	case USB_DEVICE_REMOVE:
+714  		usbfs_remove_device(dev);
+715  		break;
+716  	case USB_BUS_ADD:
+717  		usbfs_add_bus(dev);
+
+
+
+728  static struct notifier_block usbfs_nb = {
+729  	.notifier_call = 	usbfs_notify,------------------ when to call notifier_call()
+730  };
+
+
+
+736  int __init usbfs_init(void)
+737  {
+738  	int retval;
+739  
+740  	retval = register_filesystem(&usb_fs_type);-------------------------
+741  	if (retval)
+742  		return retval;
+743  
+744  	usb_register_notify(&usbfs_nb);------------------------------------
+745  
+746  	/* create mount point for usbfs */
+747  	usbdir = proc_mkdir("usb", proc_bus);--------------------------------------
+748  
+749  	return 0;
+750  }
+
+
+51  void usb_notify_remove_device(struct usb_device *udev)
+52  {
+53  	blocking_notifier_call_chain(&usb_notifier_list,----------------------------------notifier_call() be called
+54  			USB_DEVICE_REMOVE, udev);
+55  }
+
+
+314  struct usb_device_driver usb_generic_driver = {
+315  	.name =	"usb",
+316  	.match = usb_generic_driver_match,
+317  	.probe = usb_generic_driver_probe,
+318  	.disconnect = usb_generic_driver_disconnect,
+
+
+
+629  		device_lock(dev);
+630  		usb_unbind_interface(dev);-------------------disconnect
+
+hub.c	6228 usb_unbind_and_rebind_marked_interfaces(udev); in usb_reset_device()---------------------
+
+
+1871  	INIT_WORK(&hub->events, hub_event);-----
+
+ .probe = hub_probe,---
 ```
