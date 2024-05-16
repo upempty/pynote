@@ -228,5 +228,13 @@ MPU 是如何实现这一点的？保护与当前执行代码无关联的所有�
 
 
 
+```
 
+- MPU memory protection unit
+  
+```
+FreeRTOS-MPU 移植可以有两种类型的任务：
+
+特权任务：特权任务可以访问整个内存映射。 特权任务可通过使用 xTaskCreate() 或 xTaskCreateRestricted() API 函数创建。
+非特权任务：非特权任务只能访问其堆栈。此外， 还可以授予它最多三个用户可定义内存区域的访问权限（每个任务三个） 。非特权任务只能使用 xTaskCreateRestricted() API 创建。 请注意，请勿使用 xTaskCreate() API 创建 非特权任务。
 ```
