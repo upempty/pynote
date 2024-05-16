@@ -1,6 +1,6 @@
 
 
-- FreeRTOS is schdudled by intended code blocks, from task1->task2, and maybe ISR comes to handle and resume to specific task1.
+- FreeRTOS is schdudled by intended code blocks, from task1->task2, and maybe ISR comes to interrupt current task, handle it and resume to specific task1.
 
 ```
 
