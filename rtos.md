@@ -542,3 +542,265 @@ vTickISR,	/*  vector 40 */
 ...
 
 ```
+
+- coroutine support in FreeRTOS
+
+```
+实验效果就是，主任务Task并不受干扰，LED还能正常闪烁。
+
+协程非常简单，而且优先级很低，适合做后台应用。
+https://zhuanlan.zhihu.com/p/569634586
+堆栈利用 多有的协程在系统内共用同一个堆栈，相比使用任务节省了很多的内存占用。
+
+优先级及调度 Co-routines use prioritised cooperative scheduling with respect to other co-routines, but can be included in an application that uses preemptive tasks
+
+宏实现 协程是由一系列的宏实现的!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!有全局变量可以函数实现而不是宏？
+
+使用限制 减少内存占用的同时，对协程的使用也存在一些限制
+
+协程具有如下特点：
+
+共用同一堆栈，减少内存占用
+协程使得重入变少
+在各种架构上都可以轻松移植
+协程之间也是通过优先级调度，但是如果与任务混用，总是会被任务抢占
+堆栈空间匮乏需要额外慨率
+API调用的位置存在限制
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "croutine.h"
+void vApplicationIdleHook( void )
+{
+    vCoRoutineSchedule();
+}
+static void vTask1( void *pvParameters )
+{
+    portTickType xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+    for( ;; )
+    {
+        printf("Hello 3000!");
+        vTaskDelayUntil( &xLastWakeTime, ( 3000 / portTICK_RATE_MS ) );
+    }
+}
+static void vTask2( void *pvParameters )
+{
+    portTickType xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+    for( ;; )
+    {
+        printf("Hello 2000!");
+        vTaskDelayUntil( &xLastWakeTime, ( 1000 / portTICK_RATE_MS ) );
+    }
+}
+void vFlashCoRoutine( CoRoutineHandle_t xHandle, UBaseType_t uxIndex )
+{
+    crSTART( xHandle );
+    for( ;; )
+    {
+        if(uxIndex == 0)
+        {
+            GPIO_ToggleBits(GPIOG, GPIO_Pin_13);
+            crDELAY( xHandle, 500 );
+        }
+        else if(uxIndex == 1)
+        {
+            GPIO_ToggleBits(GPIOG, GPIO_Pin_14);
+            crDELAY( xHandle, 1000 );----------------------------------add to coroutine list:  vCoRoutineAddToDelayedList( ( xTicksToDelay ), NULL ) initially!!!!
+        }
+    }
+    crEND();
+}
+int main(void)
+{
+    xTaskCreate( vTask1, ( const char * ) "vTask1", 1000, NULL, 1, NULL );
+    xTaskCreate( vTask2, ( const char * ) "vTask2", 1000, NULL, 1, NULL );
+    xCoRoutineCreate( vFlashCoRoutine, 0, 0 );//创建协程
+    xCoRoutineCreate( vFlashCoRoutine, 0, 1 );-----------------will be scheduled in idle' task's hook:
+    vTaskStartScheduler();
+    for(;;);
+}
+实验效果就是，主任务Task并不受干扰，LED还能正常闪烁。
+
+协程非常简单，而且优先级很低，适合做后台应用。
+
+
+
+调度协同例程
+通过重复调用vCoRoutineSchedule()来调度协同例程。 调用vCoRoutineSchedule()的最佳位置是从空闲任务挂钩中进行。 即使您的应用程序仅使用协同例程，也是如此，因为在启动调度程序时仍将自动创建空闲任务。
+
+首先确保在FreeRTOSConfig.h中将configUSE_IDLE_HOOK设置为1。 然后将空闲任务挂钩写为：
+
+void vApplicationIdleHook( void )--------------call by  idle task in freeRTOS !!!!!!!!!!!!!!!!!!
+{   
+    vCoRoutineSchedule( void );
+}
+
+共享堆栈
+当协同例程阻塞时，不维护该协同例程的堆栈。 这意味着在堆栈上分配的变量很可能会丢失其值。 为了克服这个问题，必须将必须在阻塞调用中保持其值的变量声明为静态变量。 例如：
+
+void vACoRoutineFunction( CoRoutineHandle_t xHandle, UBaseType_t uxIndex )
+{
+    static char c = 'a';
+    crSTART( xHandle );   
+    for( ;; )   
+    {      // If we set c to equal 'b' here ...      
+        c = 'b';      // ... then make a blocking call ...      
+        crDELAY( xHandle, 10 );//c will only be guaranteed to still // equal 'b' here if it is declared static vApplicationIdleHook which calls vCoRoutineSchedule()
+    }
+    crEND();
+}
+
+
+
+https://zhuanlan.zhihu.com/p/569634586
+
+portTASK_FUNCTION
+
+static portTASK_FUNCTION( prvIdleTask, pvParameters )
+
+		#if ( configUSE_IDLE_HOOK == 1 )
+		{
+			extern void vApplicationIdleHook( void );
+
+			/* Call the user defined function from within the idle task.  This
+			allows the application designer to add background functionality
+			without the overhead of a separate task.
+			NOTE: vApplicationIdleHook() MUST NOT, UNDER ANY CIRCUMSTANCES,
+			CALL A FUNCTION THAT MIGHT BLOCK. */
+			vApplicationIdleHook();---------------------------------------------------------------------------
+		}
+		#endif
+
+
+ void vApplicationIdleHook( void )
+ {
+	vCoRoutineSchedule();
+ }
+
+
+https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/c9e3949f02f0350986f7a7df273e8bf2e9311d04/croutine.c#L297
+    void vCoRoutineSchedule( void )
+    {
+        traceENTER_vCoRoutineSchedule();
+
+        /* Only run a co-routine after prvInitialiseCoRoutineLists() has been
+         * called.  prvInitialiseCoRoutineLists() is called automatically when a
+         * co-routine is created. */
+        if( pxDelayedCoRoutineList != NULL )
+        {
+            /* See if any co-routines readied by events need moving to the ready lists. */
+            prvCheckPendingReadyList();
+
+            /* See if any delayed co-routines have timed out. */
+            prvCheckDelayedList();
+
+            /* Find the highest priority queue that contains ready co-routines. */
+            while( listLIST_IS_EMPTY( &( pxReadyCoRoutineLists[ uxTopCoRoutineReadyPriority ] ) ) )
+            {
+                if( uxTopCoRoutineReadyPriority == 0 )
+                {
+                    /* No more co-routines to check. */
+                    return;
+                }
+
+                --uxTopCoRoutineReadyPriority;
+            }
+
+            /* listGET_OWNER_OF_NEXT_ENTRY walks through the list, so the co-routines
+             * of the same priority get an equal share of the processor time. */
+            listGET_OWNER_OF_NEXT_ENTRY( pxCurrentCoRoutine, &( pxReadyCoRoutineLists[ uxTopCoRoutineReadyPriority ] ) );
+
+            /* Call the co-routine. */
+            ( pxCurrentCoRoutine->pxCoRoutineFunction )( pxCurrentCoRoutine, pxCurrentCoRoutine->uxIndex );----------------------------------------
+        }
+
+        traceRETURN_vCoRoutineSchedule();
+    }
+
+
+   BaseType_t xCoRoutineCreate( crCOROUTINE_CODE pxCoRoutineCode,
+                                 UBaseType_t uxPriority,
+                                 UBaseType_t uxIndex )
+    {
+        BaseType_t xReturn;
+        CRCB_t * pxCoRoutine;
+
+        traceENTER_xCoRoutineCreate( pxCoRoutineCode, uxPriority, uxIndex );
+
+        /* Allocate the memory that will store the co-routine control block. */
+        /* MISRA Ref 11.5.1 [Malloc memory assignment] */
+        /* More details at: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/main/MISRA.md#rule-115 */
+        /* coverity[misra_c_2012_rule_11_5_violation] */
+        pxCoRoutine = ( CRCB_t * ) pvPortMalloc( sizeof( CRCB_t ) );
+
+        if( pxCoRoutine )
+        {
+            /* If pxCurrentCoRoutine is NULL then this is the first co-routine to
+            * be created and the co-routine data structures need initialising. */
+            if( pxCurrentCoRoutine == NULL )
+            {
+                pxCurrentCoRoutine = pxCoRoutine;
+                prvInitialiseCoRoutineLists();
+            }
+
+            /* Check the priority is within limits. */
+            if( uxPriority >= configMAX_CO_ROUTINE_PRIORITIES )
+            {
+                uxPriority = configMAX_CO_ROUTINE_PRIORITIES - 1;
+            }
+...
+            /* Fill out the co-routine control block from the function parameters. */
+            pxCoRoutine->uxState = corINITIAL_STATE;
+            pxCoRoutine->uxPriority = uxPriority;
+            pxCoRoutine->uxIndex = uxIndex;
+            pxCoRoutine->pxCoRoutineFunction = pxCoRoutineCode;
+
+            /* Event lists are always in priority order. */
+            listSET_LIST_ITEM_VALUE( &( pxCoRoutine->xEventListItem ), ( ( TickType_t ) configMAX_CO_ROUTINE_PRIORITIES - ( TickType_t ) uxPriority ) );
+
+            /* Now the co-routine has been initialised it can be added to the ready
+             * list at the correct priority. */
+            prvAddCoRoutineToReadyQueue( pxCoRoutine );
+
+--------
+
+
+
+
+    BaseType_t xCoRoutineRemoveFromEventList( const List_t * pxEventList )
+    {
+        CRCB_t * pxUnblockedCRCB;
+        BaseType_t xReturn;
+
+        traceENTER_xCoRoutineRemoveFromEventList( pxEventList );
+
+        /* This function is called from within an interrupt.  It can only access
+         * event lists and the pending ready list.  This function assumes that a
+         * check has already been made to ensure pxEventList is not empty. */
+        pxUnblockedCRCB = ( CRCB_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxEventList );
+        ( void ) uxListRemove( &( pxUnblockedCRCB->xEventListItem ) );
+        vListInsertEnd( ( List_t * ) &( xPendingReadyCoRoutineList ), &( pxUnblockedCRCB->xEventListItem ) );
+
+        if( pxUnblockedCRCB->uxPriority >= pxCurrentCoRoutine->uxPriority )
+        {
+            xReturn = pdTRUE;
+        }
+        else
+        {
+            xReturn = pdFALSE;
+        }
+
+        traceRETURN_xCoRoutineRemoveFromEventList( xReturn );
+
+        return xReturn;
+    }
+
+
+
+ *
+ * The macro's crQUEUE_SEND() and crQUEUE_RECEIVE() are the co-routine
+ * equivalent to the xQueueSend() and xQueueReceive() functions used by tasks.
+
+```
