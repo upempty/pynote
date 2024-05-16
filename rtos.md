@@ -1,7 +1,237 @@
 
 
-- FreeRTOS is schdudled by intended code blocks, from task1->task2, and maybe ISR comes to interrupt current task, handle it and resume to specific task1.
+- FreeRTOS task switch: vTaskStartScheduler to save the context and restore the new task
+```
+==
 
+void main( void )
+{
+    static StaticTask_t exampleTaskTCB;
+    static StackType_t exampleTaskStack[ configMINIMAL_STACK_SIZE ];
+
+    ( void ) printf( "Example FreeRTOS Project\n" );
+
+    ( void ) xTaskCreateStatic( exampleTask,
+                                "example",
+                                configMINIMAL_STACK_SIZE,
+                                NULL,
+                                configMAX_PRIORITIES - 1U,
+                                &( exampleTaskStack[ 0 ] ),
+                                &( exampleTaskTCB ) );
+
+    /* Start the scheduler. */
+    vTaskStartScheduler();
+
+    for( ; ; )
+    {
+        /* Should not reach here. */
+    }
+}
+
+
+
+void vTaskStartScheduler( void )
+{
+    BaseType_t xReturn;
+
+    traceENTER_vTaskStartScheduler();
+    ....
+
+
+        /* The return value for xPortStartScheduler is not required
+         * hence using a void datatype. */
+        ( void ) xPortStartScheduler();
+
+
+
+BaseType_t xPortStartScheduler( void )
+{
+    extern void( vPortStartFirstTask )( void );
+    extern uint32_t _stack[];
+
+    /* Setup the hardware to generate the tick.  Interrupts are disabled when
+     * this function is called.
+     *
+     * This port uses an application defined callback function to install the tick
+     * interrupt handler because the kernel will run on lots of different
+     * MicroBlaze and FPGA configurations - not all of which will have the same
+     * timer peripherals defined or available.  An example definition of
+     * vApplicationSetupTimerInterrupt() is provided in the official demo
+     * application that accompanies this port. */
+    vApplicationSetupTimerInterrupt();
+
+    /* Reuse the stack from main() as the stack for the interrupts/exceptions. */
+    pulISRStack = ( uint32_t * ) _stack;
+
+    /* Ensure there is enough space for the functions called from the interrupt
+     * service routines to write back into the stack frame of the caller. */
+    pulISRStack -= 2;
+
+    /* Restore the context of the first task that is going to run.  From here
+     * on, the created tasks will be executing. */
+    vPortStartFirstTask();
+
+
+/*
+ * Called by portYIELD() or taskYIELD() to manually force a context switch.
+ *
+ * When a context switch is performed from the task level the saved task
+ * context is made to look as if it occurred from within the tick ISR.  This
+ * way the same restore context function can be used when restoring the context
+ * saved from the ISR or that saved from a call to vPortYieldProcessor.
+ */
+void vPortYieldProcessor( void )
+{
+    /* Within an IRQ ISR the link register has an offset from the true return
+     * address, but an SWI ISR does not.  Add the offset manually so the same
+     * ISR return code can be used in both cases. */
+    __asm volatile ( "ADD       LR, LR, #4" );
+
+    /* Perform the context switch.  First save the context of the current task. */
+    portSAVE_CONTEXT();
+
+    /* Find the highest priority task that is ready to run. */
+    vTaskSwitchContext();
+
+    /* Restore the context of the new task. */
+    portRESTORE_CONTEXT();
+}
+
+
+
+
+ */
+#if( ( configMEMMODEL == portSMALL ) || ( configMEMMODEL == portMEDIUM ) )
+
+    #define portSAVE_CONTEXT()                                          \
+            {   __asm(" POPW  A ");                                     \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" PUSHW (RW0,RW1,RW2,RW3,RW4,RW5,RW6,RW7) ");     \
+                __asm(" MOVW A, _pxCurrentTCB ");                       \
+                __asm(" MOVW A, SP ");                                  \
+                __asm(" SWAPW ");                                       \
+                __asm(" MOVW @AL, AH ");                                \
+                __asm(" OR   CCR,#H'20 ");                              \
+            }
+
+/*
+ * Macro to restore a task context from the task stack. This is
+ * effectively the reverse of SAVE_CONTEXT(). First the stack pointer
+ * value (USP for SMALL and MEDIUM memory model amd USB:USP for COMPACT
+ * and LARGE memory model ) is loaded from the task  control block. Next
+ * the value of all the general purpose registers RW0-RW7 is retrieved.
+ * Finally it copies of the context ( AH:AL, DPR:ADB, DTB:PCB, PC and PS)
+ * of the task to be executed upon RETI from user stack to system stack.
+ */
+
+    #define portRESTORE_CONTEXT()                                       \
+            {   __asm(" MOVW A, _pxCurrentTCB ");                       \
+                __asm(" MOVW A, @A ");                                  \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" MOVW SP, A ");                                  \
+                __asm(" POPW (RW0,RW1,RW2,RW3,RW4,RW5,RW6,RW7) ");      \
+                __asm(" POPW  A ");                                     \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" PUSHW  A ");                                    \
+                __asm(" AND  CCR,#H'DF ");                              \
+                __asm(" POPW  A ");                                     \
+                __asm(" OR   CCR,#H'20 ");                              \
+                __asm(" PUSHW  A ");                                    \
+            }
+
+
+https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/c9e3949f02f0350986f7a7df273e8bf2e9311d04/portable/Softune/MB96340/port.c#L150
+
+or suspend schduling inside:
+
+
+
+ void vTaskSuspend( TaskHandle_t xTaskToSuspend )
+     vTaskSwitchContext();
+ 
+void vTaskSwitchContext( BaseType_t xCoreID )
+   
+                /* Select a new task to run. */
+                taskSELECT_HIGHEST_PRIORITY_TASK( xCoreID );
+
+
+ #define taskSELECT_HIGHEST_PRIORITY_TASK( xCoreID )    prvSelectHighestPriorityTask( xCoreID )
+
+static void prvSelectHighestPriorityTask( BaseType_t xCoreID )
+    prvYieldCore( x );
+        portYIELD_CORE( xCoreID );  
+        pxCurrentTCBs[ ( xCoreID ) ]->xTaskRunState = taskTASK_SCHEDULED_TO_YIELD; 
+            #define portYIELD_CORE( x )    portYIELD()
+
+
+
+/*
+ * Manual context switch called by portYIELD or taskYIELD.
+ *
+ * The first thing we do is save the registers so we can use a naked attribute.
+ */
+void vPortYield( void ) __attribute__( ( naked ) );
+void vPortYield( void )
+{
+    /* We want the stack of the task being saved to look exactly as if the task
+     * was saved during a pre-emptive RTOS tick ISR.  Before calling an ISR the
+     * msp430 places the status register onto the stack.  As this is a function
+     * call and not an ISR we have to do this manually. */
+    asm volatile ( "push    r2" );
+    _DINT();
+
+    /* Save the context of the current task. */
+    portSAVE_CONTEXT();
+
+    /* Switch to the highest priority task that is ready to run. */
+    vTaskSwitchContext();
+
+    /* Restore the context of the new task. */
+    portRESTORE_CONTEXT();
+}
+
+```
+
+- FreeRTOS is schdudled from task1->task2, and maybe ISR comes to interrupt current task, handle it and resume to specific task1.
+
+  
 ```
 
 timer sw的定义去跟ticks比较：
