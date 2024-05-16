@@ -468,3 +468,77 @@ FreeRTOS-MPU 移植可以有两种类型的任务：
 特权任务：特权任务可以访问整个内存映射。 特权任务可通过使用 xTaskCreate() 或 xTaskCreateRestricted() API 函数创建。
 非特权任务：非特权任务只能访问其堆栈。此外， 还可以授予它最多三个用户可定义内存区域的访问权限（每个任务三个） 。非特权任务只能使用 xTaskCreateRestricted() API 创建。 请注意，请勿使用 xTaskCreate() API 创建 非特权任务。
 ```
+
+- Tick ISR for timer counters
+- 
+```
+
+https://github.com/FreeRTOS/FreeRTOS/tree/680a1255e2e52e63ffd528f3c1d968bc0fe5c752/FreeRTOS/Demo/H8S/RTOSDemo
+
+/*
+ * The RTOS tick ISR.
+ *
+ * If the cooperative scheduler is in use this simply increments the tick
+ * count.
+ *
+ * If the preemptive scheduler is in use a context switch can also occur.
+ */
+vTickISR:
+    portSAVE_CONTEXT
+
+    call    #xTaskIncrementTick
+    cmp.w   #0x0, R12
+    jeq     SkipContextSwitch
+    call    #vTaskSwitchContext
+SkipContextSwitch:
+
+called by interrupt:
+https://github.com/FreeRTOS/FreeRTOS/blob/680a1255e2e52e63ffd528f3c1d968bc0fe5c752/FreeRTOS/Demo/H8S/RTOSDemo/vects.c#L73
+
+#define VECT_SECT          __attribute__ ((section (".vects")))
+
+const fp HardwareVectors[] VECT_SECT = {
+start,		/*  vector 0 */
+(fp)(0),	/*  vector 1 */
+(fp)(0),	/*  vector 2 */
+(fp)(0),	/*  vector 3 */
+(fp)(0),	/*  vector 4 */
+(fp)(0),	/*  vector 5 */
+(fp)(0),	/*  vector 6 */
+(fp)(0),	/*  vector 7 */
+vPortYield,	/*  vector 8 */
+(fp)(0),	/*  vector 9 */
+(fp)(0),	/*  vector 10 */
+(fp)(0),	/*  vector 11 */
+(fp)(0),	/*  vector 12 */
+(fp)(0),	/*  vector 13 */
+(fp)(0),	/*  vector 14 */
+(fp)(0),	/*  vector 15 */
+(fp)(0),	/*  vector 16 */
+(fp)(0),	/*  vector 17 */
+(fp)(0),	/*  vector 18 */
+(fp)(0),	/*  vector 19 */
+(fp)(0),	/*  vector 20 */
+(fp)(0),	/*  vector 21 */
+(fp)(0),	/*  vector 22 */
+(fp)(0),	/*  vector 23 */
+(fp)(0),	/*  vector 24 */
+(fp)(0),	/*  vector 25 */
+(fp)(0),	/*  vector 26 */
+(fp)(0),	/*  vector 27 */
+(fp)(0),	/*  vector 28 */
+(fp)(0),	/*  vector 29 */
+(fp)(0),	/*  vector 30 */
+(fp)(0),	/*  vector 31 */
+(fp)(0),	/*  vector 32 */
+(fp)(0),	/*  vector 33 */
+(fp)(0),	/*  vector 34 */
+(fp)(0),	/*  vector 35 */
+(fp)(0),	/*  vector 36 */
+(fp)(0),	/*  vector 37 */
+(fp)(0),	/*  vector 38 */
+(fp)(0),	/*  vector 39 */
+vTickISR,	/*  vector 40 */
+...
+
+```
