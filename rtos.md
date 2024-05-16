@@ -608,6 +608,31 @@ void vFlashCoRoutine( CoRoutineHandle_t xHandle, UBaseType_t uxIndex )
         {
             GPIO_ToggleBits(GPIOG, GPIO_Pin_14);
             crDELAY( xHandle, 1000 );----------------------------------add to coroutine list:  vCoRoutineAddToDelayedList( ( xTicksToDelay ), NULL ) initially!!!!
+/////
+#define crDELAY( xHandle, xTicksToDelay )                          \
+    do {                                                           \
+        if( ( xTicksToDelay ) > 0 )                                \
+        {                                                          \
+            vCoRoutineAddToDelayedList( ( xTicksToDelay ), NULL ); \
+        }                                                          \
+        crSET_STATE0( ( xHandle ) );                               \------------------------------
+    } while( 0 )
+
+
+
+/*
+ * These macros are intended for internal use by the co-routine implementation
+ * only.  The macros should not be used directly by application writers.
+ */
+#define crSET_STATE0( xHandle )                                       \
+    ( ( CRCB_t * ) ( xHandle ) )->uxState = ( __LINE__ * 2 ); return; \---------------------------------------------return!!!!!!!!!!!!!!!!!!!!!!!!!!!!! and hook in idle to schedule next coroutine, not switch the stack then.
+    case ( __LINE__ * 2 ):------------------------------------------------------------------------------------------execute next coutine?
+#define crSET_STATE1( xHandle )                                               \
+    ( ( CRCB_t * ) ( xHandle ) )->uxState = ( ( __LINE__ * 2 ) + 1 ); return; \
+    case ( ( __LINE__ * 2 ) + 1 ):
+
+
+/////
         }
     }
     crEND();
