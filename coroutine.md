@@ -45,11 +45,12 @@
          crDELAY( xHandle, uxFlashRates[ uxIndex ] );------------push to delay list(like sleep time), so it will -------#define crSET_STATE0( xHandle ) ( ( corCRCB * )( xHandle ) )->uxState = (__LINE__ * 2); return; case (__LINE__ * 2):
 
 
-         ===return then go to next schedule after coroutine call() finished with return
+         ===return then go to next schedule after coroutine call() finished with return.
+	 ===!!!!next executing position address for next coroutine scheduling. Key point is to routine/function level known address for next coroutine.!!!!
         ///
 
 
-void vCoRoutineSchedule( void )
+void vCoRoutineSchedule( void )------------------------------------------
 {
 	/* See if any co-routines readied by events need moving to the ready lists. */
 	prvCheckPendingReadyList();
