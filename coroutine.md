@@ -46,7 +46,7 @@
 
 
          ===return then go to next schedule after coroutine call() finished with return.
-	 ===!!!!next executing position address for next coroutine scheduling. Key point is to routine/function level known address for next coroutine.!!!!
+	 ===!!!!next executing position address [Here still in the loop, just not iteral] for next coroutine scheduling. Key point is to routine/function level known address for next coroutine.!!!!
         ///
 
 
