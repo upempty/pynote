@@ -609,6 +609,24 @@ struct pdump_request {
 
 ring = mz->mzddr (r = mz->addr;)
 
+	if ((operation & ENABLE) != 0) {
+		req->ring = ring;----------------------------------------------------------
+		req->mp = mp;--------------------------------------------------------------
+		req->prm = prm;
+		req->snaplen = snaplen;
+	}
+
+	rte_strscpy(mp_req.name, PDUMP_MP, RTE_MP_MAX_NAME_LEN);-----https://github.com/DPDK/dpdk/blob/6f80df8cb0f889203d7cd27766abcc6ebc720e33/lib/pdump/rte_pdump.c#L433
+
+	mp_req.len_param = sizeof(*req);
+	mp_req.num_fds = 0;
+	if (rte_mp_request_sync(&mp_req, &mp_reply, &ts) == 0) {------------------
+------------------------------------msg sending----mp_request_sync(path, req, reply, &end))---ret = send_msg(dst, req, MP_REQ);--snd = sendmsg(mp_fd, &msgh, 0);
+
+
+===detail:
+
+
 static struct rte_ring *create_ring(void)
 {
 	struct rte_ring *ring;
