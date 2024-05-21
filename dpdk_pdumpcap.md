@@ -585,3 +585,105 @@ rte_eth_call_rx_callbacks(uint16_t port_id, uint16_t queue_id,
 
 
 ```
+- sendmsg for ponters for rte_ring and rte_mem_pool
+```
+
+
+===pdump_enable request msg to send===
+
+struct pdump_request {
+	uint16_t ver;
+	uint16_t op;
+	uint32_t flags;
+	char device[RTE_DEV_NAME_MAX_LEN];
+	uint16_t queue;
+	struct rte_ring *ring;---------------
+	struct rte_mempool *mp;--------------
+
+	const struct rte_bpf_prm *prm;
+	uint32_t snaplen;
+};
+
+
+发送消息pdump_request的buffer 指针(ring, mp)怎么可以？如果传的地址在另一个task如pdump server里可用，表明地址是可以跨task的，要么是物理地址，要么是多线程方式（其共享堆内存), 所以要这么支持，dpdk选型用thread模式就ok。
+
+ring = mz->mzddr (r = mz->addr;)
+
+static struct rte_ring *create_ring(void)
+{
+	struct rte_ring *ring;
+	char ring_name[RTE_RING_NAMESIZE];
+	size_t size, log2;
+
+	/* Find next power of 2 >= size. */
+	size = ring_size;
+	log2 = sizeof(size) * 8 - __builtin_clzl(size - 1);
+	size = 1u << log2;
+
+	if (size != ring_size) {
+		fprintf(stderr, "Ring size %u rounded up to %zu\n",
+			ring_size, size);
+		ring_size = size;
+	}
+
+	/* Want one ring per invocation of program */
+	snprintf(ring_name, sizeof(ring_name),
+		 "dumpcap-%d", getpid());
+
+	ring = rte_ring_create(ring_name, ring_size,
+			       rte_socket_id(), 0);-----------------------
+
+
+
+
+/* create the ring */
+struct rte_ring *
+rte_ring_create(const char *name, unsigned int count, int socket_id,
+		unsigned int flags)
+{
+	return rte_ring_create_elem(name, sizeof(void *), count, socket_id,
+		flags);
+}
+
+rte_ring_create_elem:
+	mz = rte_memzone_reserve_aligned(mz_name, ring_size, socket_id,
+					 mz_flags, alignof(typeof(*r)));
+	if (mz != NULL) {
+		r = mz->addr;
+
+
+/* allocate memory on heap */
+		mz_addr = malloc_heap_alloc(NULL, requested_len, socket_id,
+				flags, align, bound, contig);
+
+
+
+
+static void *
+heap_alloc(struct malloc_heap *heap, const char *type __rte_unused, size_t size,
+		unsigned int flags, size_t align, size_t bound, bool contig)
+{
+	struct malloc_elem *elem;
+	size_t user_size = size;
+
+	size = RTE_CACHE_LINE_ROUNDUP(size);
+	align = RTE_CACHE_LINE_ROUNDUP(align);
+
+	/* roundup might cause an overflow */
+	if (size == 0)
+		return NULL;
+	elem = find_suitable_element(heap, size, flags, align, bound, contig);
+	if (elem != NULL) {
+		elem = malloc_elem_alloc(elem, size, align, bound, contig);-------------------------------
+
+		/* increase heap's count of allocated elements */
+		heap->alloc_count++;
+
+		asan_set_redzone(elem, user_size);
+	}
+
+	return elem == NULL ? NULL : (void *)(&elem[1]);
+}
+
+
+```
