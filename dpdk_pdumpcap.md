@@ -585,7 +585,7 @@ rte_eth_call_rx_callbacks(uint16_t port_id, uint16_t queue_id,
 
 
 ```
-- sendmsg for ponters for rte_ring and rte_mem_pool
+- sendmsg for pointers for rte_ring and rte_mem_pool to other server to attach this client requested ring/mempool to the rx/tx burst's callback's extra ring/mbuf memory.
 ```
 
 
