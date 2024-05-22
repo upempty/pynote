@@ -605,7 +605,9 @@ struct pdump_request {
 };
 
 
-发送消息pdump_request的buffer 指针(ring, mp)怎么可以？如果传的地址在另一个task如pdump server里可用，表明地址是可以跨task的，要么是物理地址，要么是多线程方式（其共享堆内存), 所以要这么支持，dpdk选型用thread模式就ok。
+发送消息pdump_request的buffer 指针(ring, mp)怎么可以？如果传的地址在另一个task如pdump server里可用，表明地址是可以跨task的，要么是物理地址，要么是多线程方式（其共享堆内存),
+多进程的方式，就要求虚拟地址在多进程模式也是相同的，这个dpdk里也对多进程模式做了特殊处理，如mmap(addr, page_sz, PROT_READ | PROT_WRITE,
+   MAP_SHARED | MAP_POPULATE | MAP_FIXED, fd, 0);保证remap_needed_hugepages->remap_segment: MAP_FIXED映射到相同的虚拟地址(所有进程)，地址是rte eal启动参数--base-virtaddr 0x6a0000000000指定的。
 
 ring = mz->mzddr (r = mz->addr;)
 
