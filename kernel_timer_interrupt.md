@@ -2,7 +2,7 @@
 - Periodic(not fixed time) scheduler
 ```
 
-dynamic tick: red black tree stores the sw times, which will trigger the hw timer changed as requested. if no task, then no timer interrupt.
+dynamic tick: red black tree stores the sw timers, which will trigger the hw timer changed as requested. if no task, then no timer interrupt.
 
 The function scheduler_tick() is called on every timer interrupt with the frequency, set at
 compile time, stored in a preprocessor constant named HZ. Many architectures or even machine
