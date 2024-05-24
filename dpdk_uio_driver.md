@@ -1,7 +1,7 @@
 
 - pci driver, uio driver(need to explictly modprobe), igb_uio driver(need to explictly insmod), user space api based on pci resource sys dev file (e.g. /sys/.../resource0) to access the tx/rx desc's addr's buffer for tx/rx data
   - uio driver in linux native
-  - dpdk igb_uio kernel mode driver/module: https://github.com/gaojinghua/igb_uio/tree/master
+  - igb_uio kernel mode driver/module: https://github.com/gaojinghua/igb_uio/tree/master
     - a) user mode driver: https://github.com/echoechoin/e1000-igb_uio/tree/maste
     - b) dpdk driver
     - either a) or b) can be used for user space tx/rx data bypass kernel stack!!!  
