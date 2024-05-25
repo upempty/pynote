@@ -6,6 +6,12 @@
     - b) dpdk driver
     - either a) or b) can be used for user space tx/rx data bypass kernel stack!!!  
 
+
+![image](https://github.com/upempty/pynote/assets/52414719/e84be08f-bb66-4a69-b0b5-8cf437153caa)
+
+![image](https://github.com/upempty/pynote/assets/52414719/789b0cd9-f499-4abd-9eda-2ef2287725b1)
+
+
 ```
 bootloader will set the pci configuration space with predefined values of hw.
 so it knows the address of pci address tables(bars).
