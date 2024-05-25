@@ -8,6 +8,9 @@
 
 https://codilime.com/blog/how-can-dpdk-access-devices-from-user-space/
 
+how dpdk associated with igb_uio or vfio-pci: rte_bus_scan  https://zhuanlan.zhihu.com/p/587858559
+
+
 ![image](https://github.com/upempty/pynote/assets/52414719/bbde5a6e-921a-44dd-91b2-72a9b3d32685)
 
 
