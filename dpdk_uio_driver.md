@@ -6,6 +6,10 @@
     - b) dpdk driver
     - either a) or b) can be used for user space tx/rx data bypass kernel stack!!!  
 
+https://codilime.com/blog/how-can-dpdk-access-devices-from-user-space/
+
+![image](https://github.com/upempty/pynote/assets/52414719/bbde5a6e-921a-44dd-91b2-72a9b3d32685)
+
 
 ![image](https://github.com/upempty/pynote/assets/52414719/e84be08f-bb66-4a69-b0b5-8cf437153caa)
 
