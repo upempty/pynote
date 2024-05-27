@@ -17,7 +17,8 @@ https://github.com/DPDK/dpdk/blob/77e63757d2a0106a0cc519f5a82e2d749d16475a/drive
   and each compiles to a library with the format librte_X_Y.a where X is the device class name and Y is the driver name.
 
 ==how userspace driver/api uses the igb_uio/vfio-pci driver,
-it is to controll the nic/pci hw register which rely on the base addr which is hw or hw_addr which was mmap from /sys/../reource0 created by igb_uio/vfio-pci driver!!!
+it is to controll the nic/pci hw register which rely on the base addr
+which is hw or hw_addr which was mmap from /sys/../reource0 created by igb_uio/vfio-pci driver!!!
 
 1. init phase: tx/rx desc register (in hw space) written from userspace allocated memory.
    set in eth_igb_tx_init/eth_igb_rx_init, eth_igb_tx_queue_setup/eth_igb_rx_queue_setup.
