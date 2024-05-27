@@ -21,6 +21,17 @@ https://github.com/DPDK/dpdk/blob/77e63757d2a0106a0cc519f5a82e2d749d16475a/drive
 it is to controll the nic/pci hw register which rely on the base addr
 which is hw or hw_addr which was mmap from /sys/../reource0 created by igb_uio/vfio-pci driver!!!
 
+#define E1000_PCI_REG_ADDR(hw, reg) \
+	((volatile uint32_t *)((char *)(hw)->hw_addr + (reg)))
+
+hw->hw_addr= (void *)pci_dev->mem_resource[0].addr; -----<---eth_igb_dev_init--<--
+--<---eth_igb_pci_probe--<--
+static struct rte_pci_driver rte_igb_pmd = {
+	.id_table = pci_id_igb_map,
+	.drv_flags = RTE_PCI_DRV_NEED_MAPPING | RTE_PCI_DRV_INTR_LSC,
+	.probe = eth_igb_pci_probe,
+
+
 1. init phase: tx/rx desc register (in hw space) written from userspace allocated memory.
    set in eth_igb_tx_init/eth_igb_rx_init, eth_igb_tx_queue_setup/eth_igb_rx_queue_setup.
    set callback: eth_igb_xmit_pkts/eth_igb_recv_pkts; which is also set in igb_ethdev.c for dev reset/probe case:
