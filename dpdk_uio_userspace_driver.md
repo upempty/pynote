@@ -12,7 +12,8 @@ userspace dpdk pmd driver:
 dpdk/drivers/net/e1000/igb_rxtx.c
 https://github.com/DPDK/dpdk/blob/77e63757d2a0106a0cc519f5a82e2d749d16475a/drivers/net/e1000/igb_rxtx.c#L2408
 --DPDK is a set of libraries and optimized network interface card (NIC) drivers for fast packet processing in a user space.
---Drivers are special libraries which provide poll-mode driver implementations for devices: either hardware devices or pseudo/virtual devices. 
+--Drivers are special libraries which provide poll-mode driver implementations for devices:
+  either hardware devices or pseudo/virtual devices. 
   They are contained in the drivers subdirectory, classified by type, 
   and each compiles to a library with the format librte_X_Y.a where X is the device class name and Y is the driver name.
 
