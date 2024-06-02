@@ -1,3 +1,16 @@
+
+buddy and slab
+- buddy
+![image](https://github.com/upempty/pynote/assets/52414719/e5b29e18-6fcd-44b6-91f8-ebbc8ca00e8d)
+
+- slab
+
+  ![image](https://github.com/upempty/pynote/assets/52414719/e19651bc-0c63-4da5-8a24-e694ac94be3b)  
+
+
+
+
+
 ![image](https://github.com/upempty/pynote/assets/52414719/64f636ed-3115-41a0-ba0d-dec9fa4dc301)
 
 
