@@ -1,11 +1,9 @@
 
-sending via UDS is to push to receving queue directly  
+sending data via UDS is to push to receving queue directly  
 - unix domain socket
 - https://elixir.bootlin.com/linux/v4.12.5/source/net/unix/af_unix.c#L904
 
 ```
-
-sending via UDS is to push to receving queue directly 
 ==
 After connect from client, and accept from server, the socket pair with client sock and "new created sock" for server relation x->perr created.
 thus the data sent will be put into peer's receiveing queue.
