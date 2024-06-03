@@ -1,6 +1,6 @@
 
 sending via UDS is to push to receving queue directly  
-
+- unix domain socket
 - https://elixir.bootlin.com/linux/v4.12.5/source/net/unix/af_unix.c#L904
 
 ```
