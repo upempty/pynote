@@ -1,5 +1,11 @@
 
 ```
+qemu-system-i386 -drive format=raw,file=disk.img -nographic
+qemu-system-x86_64 -drive format=raw,file=disk.img -nographic
+
+```
+
+```
  yum install binutils
  yum install qemu-kvm -- installed but not used.
 
