@@ -1,21 +1,16 @@
 
 ```
+If to display into vga (screen 0xb8000), it shall not use -nographic param in qemu commands.
+Refer https://stackoverflow.com/questions/6710555/how-to-use-qemu-to-run-a-non-gui-os-on-the-terminal.
 
-===well work====
-server:
-
+qemu server in aliyun server:
 qemu-system-i386 -drive format=raw,file=disk.img -vnc 172.23.245.135:5901
 netstat -lntup
 tcp        0      0 172.23.245.135:11801    0.0.0.0:*               LISTEN      1289/qemu-system-i3
 
-client:
+client on win10 pc:
 RealVNC Viewer:
 121.43.133.208:11801
-
-===well work====
-
-https://stackoverflow.com/questions/6710555/how-to-use-qemu-to-run-a-non-gui-os-on-the-terminal
-
 
 ```  
 
