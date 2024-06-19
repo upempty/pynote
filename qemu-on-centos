@@ -17,7 +17,7 @@ RealVNC Viewer:
 https://stackoverflow.com/questions/6710555/how-to-use-qemu-to-run-a-non-gui-os-on-the-terminal
 
 
-```
+```  
 
 ```
 qemu-system-i386 -drive format=raw,file=disk.img -nographic
