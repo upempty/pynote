@@ -1,5 +1,25 @@
 
 ```
+
+===well work====
+server:
+
+qemu-system-i386 -drive format=raw,file=disk.img -vnc 172.23.245.135:5901
+netstat -lntup
+tcp        0      0 172.23.245.135:11801    0.0.0.0:*               LISTEN      1289/qemu-system-i3
+
+client:
+RealVNC Viewer:
+121.43.133.208:11801
+
+===well work====
+
+https://stackoverflow.com/questions/6710555/how-to-use-qemu-to-run-a-non-gui-os-on-the-terminal
+
+
+```
+
+```
 qemu-system-i386 -drive format=raw,file=disk.img -nographic
 qemu-system-x86_64 -drive format=raw,file=disk.img -nographic
 
