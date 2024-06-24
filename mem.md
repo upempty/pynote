@@ -8,6 +8,7 @@ buddy and slab
   ![image](https://github.com/upempty/pynote/assets/52414719/e19651bc-0c63-4da5-8a24-e694ac94be3b)  
 
 
+  ![image](https://github.com/upempty/pynote/assets/52414719/0d5149e2-bbd3-43a6-8fbb-c3c7d46e6e1e)
 
 
 
