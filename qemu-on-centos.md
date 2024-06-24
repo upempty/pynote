@@ -12,7 +12,14 @@ client on win10 pc:
 RealVNC Viewer:
 121.43.133.208:11801
 
-```  
+```
+
+```
+multiple defination:
+-CF_GLOBAL      := -g -I${SYS_HEADERS} -ffreestanding -nostdlib -nodefaultlibs -nostdinc -fpack-struct -O0 -m32 -march=i386 -Wall -Werror -pedantic -ansi -std=c99
++CF_GLOBAL      := -g -I${SYS_HEADERS} -ffreestanding -nostdlib -nodefaultlibs -nostdinc -fpack-struct -O0 -m32 -march=i386 -pedantic -Wimplicit-function-declaration -ansi -std=c99 -fcommon
+
+```
 
 ```
 qemu-system-i386 -drive format=raw,file=disk.img -nographic
